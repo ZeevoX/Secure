@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -29,7 +30,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.zeevox.secure.core.SecureAppCompatActivity;
-import com.zeevox.secure.ui.IntroActivity;
 import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.util.PermissionUtils;
 
@@ -63,6 +63,8 @@ public class App extends SecureAppCompatActivity {
         // Check application required permissions
         if (ContextCompat.checkSelfPermission(App.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(App.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("intro_shown", false)) {
@@ -71,7 +73,7 @@ public class App extends SecureAppCompatActivity {
             } else {
                 // Permission is not granted; request the permission
                 ActivityCompat.requestPermissions(App.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         PERMISSIONS_REQUEST);
 
                 // PERMISSIONS_REQUEST is an app-defined int constant.
@@ -79,6 +81,7 @@ public class App extends SecureAppCompatActivity {
             }
         } else {
             // Permission has already been granted
+            unlock();
         }
 
         //requestStoragePermission(STORAGE_PERMISSION_REQUEST_CODE);
@@ -146,6 +149,29 @@ public class App extends SecureAppCompatActivity {
                 finishAffinity();
                 finish();
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay!
+                    unlock();
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
         }
     }
 }

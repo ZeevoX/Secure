@@ -14,11 +14,16 @@
 
 package com.zeevox.secure.ui;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +35,9 @@ import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.util.LogUtils;
 
 public class EditEntryActivity extends SecureAppCompatActivity {
+
+    // Identify the permissions request
+    private static final int PERMISSIONS_REQUEST = 2302;
 
     private final String TAG = this.getClass().getSimpleName();
     protected TextInputLayout keyNameLayout;
@@ -100,17 +108,65 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_done_new_entry:
-                try {
-                    Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(), passwordInput.getText().toString(), null, masterKey);
-                    finish();
-                } catch (Exception e) {
-                    Snackbar.make(findViewById(R.id.root_new_entry),
-                            "An entry with the name " + keyNameInput.getText().toString() + " already exists.",
-                            Snackbar.LENGTH_LONG).show();
-                    LogUtils.error(TAG, e);
+                // Check application required permissions
+                if (ContextCompat.checkSelfPermission(EditEntryActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                        // Permission is not granted; request the permission
+                        ActivityCompat.requestPermissions(EditEntryActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST);
+
+                        // PERMISSIONS_REQUEST is an app-defined int constant.
+                        // The callback method gets the result of the request.
+
+                } else {
+                    // Permission has already been granted
+                    addEntryComplete();
                 }
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addEntryComplete() {
+        try {
+            Crypto.init();
+            Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(), passwordInput.getText().toString(), null, masterKey);
+            finish();
+        } catch (Exception e) {
+            Snackbar.make(findViewById(R.id.root_new_entry),
+                    "An entry with the name " + keyNameInput.getText().toString() + " already exists.",
+                    Snackbar.LENGTH_LONG).show();
+            LogUtils.error(TAG, e);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay!
+                    addEntryComplete();
+
+                } else {
+                    // permission denied, boo!
+                    Snackbar.make(findViewById(R.id.root_new_entry), "Storage permission denied; cannot save.", Snackbar.LENGTH_LONG)
+                            .setAction("TRY AGAIN", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    // Permission is not granted; request the permission
+                                    ActivityCompat.requestPermissions(EditEntryActivity.this,
+                                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            PERMISSIONS_REQUEST);
+                                }
+                            }).show();
+                }
+            }
+        }
     }
 }

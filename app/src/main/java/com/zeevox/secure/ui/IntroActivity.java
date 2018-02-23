@@ -21,7 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
-import com.zeevox.secure.App;
 import com.zeevox.secure.R;
 
 public class IntroActivity extends com.heinrichreimersoftware.materialintro.app.IntroActivity {
@@ -38,7 +37,7 @@ public class IntroActivity extends com.heinrichreimersoftware.materialintro.app.
                         nextSlide();
                     }
                 })
-                .image(R.drawable.ic_launcher_web)
+                .image(R.drawable.book_secure)
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
                 .build());

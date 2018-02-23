@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2018 Timothy "ZeevoX" Langer
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -15,6 +14,16 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:title="Edit" android:id="@+id/action_item_edit" app:showAsAction="ifRoom" android:icon="@drawable/ic_edit" />
-    <item android:title="Delete" android:id="@+id/action_item_delete" app:showAsAction="ifRoom" android:icon="@drawable/ic_delete" />
+    <item
+        android:id="@+id/action_item_edit"
+        android:enabled="false"
+        android:icon="@drawable/ic_edit"
+        android:title="Edit"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_item_delete"
+        android:enabled="false"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete"
+        app:showAsAction="ifRoom" />
 </menu>

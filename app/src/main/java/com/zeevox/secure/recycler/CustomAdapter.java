@@ -178,7 +178,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 case R.id.action_item_delete:
                     try {
                         Crypto.getEntries().removeEntryAt(getAdapterPosition());
-                        new MainActivity().refreshRecyclerView();
                         Log.d(TAG, "Delete item with id " + getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();

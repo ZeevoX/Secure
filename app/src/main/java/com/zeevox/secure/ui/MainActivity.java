@@ -17,7 +17,6 @@ package com.zeevox.secure.ui;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -39,7 +38,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -66,6 +64,8 @@ public class MainActivity extends SecureAppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private String[] mDataSet;
+    private LinearLayoutManager mLayoutManager;
+    private boolean wasNewUser = false;
 
     public static String generateRandomWord() {
         Random random = new Random();
@@ -98,7 +98,7 @@ public class MainActivity extends SecureAppCompatActivity {
         mRecyclerView.setHasFixedSize(false);
 
         // Select to use a linear layout manager
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(this);
 
         // Apply the LLM to the RecyclerView
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -106,30 +106,14 @@ public class MainActivity extends SecureAppCompatActivity {
         // Initialise Crypto
         try {
             Crypto.init();
+            if (Crypto.isNewUser()) {
+                Log.d(getClass().getSimpleName(), "New user!");
+                newMasterDialog();
+            } else {
+                setupRecycler();
+            }
         } catch (Exception e) {
             showErrorSnackBar();
-        }
-
-        if (Crypto.isNewUser()) {
-            Log.d(getClass().getSimpleName(), "New user!");
-            newMasterDialog();
-        } else {
-            // Initialize dataset, this data would usually come
-            // from a local content provider or remote server.
-            try {
-                initDataset();
-            } catch (Exception e) {
-                showErrorSnackBar();
-                e.printStackTrace();
-            }
-
-            // Specify our CustomAdapter
-            mAdapter = new CustomAdapter(mDataSet);
-            mRecyclerView.setAdapter(mAdapter);
-
-            // Add item separators
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
-            mRecyclerView.addItemDecoration(dividerItemDecoration);
         }
 
         // Add onClick functionality for the FloatingActionButton
@@ -154,6 +138,26 @@ public class MainActivity extends SecureAppCompatActivity {
         // Enable a contextual menu for recyclerView items. For more info, see
         // https://developer.android.com/guide/topics/ui/menus.html#context-menu
         registerForContextMenu(mRecyclerView);
+    }
+
+
+    public void setupRecycler() {
+        // Initialize dataset, this data would usually come
+        // from a local content provider or remote server.
+        try {
+            initDataset();
+        } catch (Exception e) {
+            showErrorSnackBar();
+            e.printStackTrace();
+        }
+
+        // Specify our CustomAdapter
+        mAdapter = new CustomAdapter(mDataSet);
+        mRecyclerView.setAdapter(mAdapter);
+
+        // Add item separators
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     @Override
@@ -217,7 +221,6 @@ public class MainActivity extends SecureAppCompatActivity {
             for (int i = 0; i < numberOfEntries; i++) {
                 mDataSet[i] = mEntries.getEntryAt(i).key;
             }
-            //Arrays.sort(mDataSet);
         } else {
             mDataSet = new String[DATASET_COUNT];
             for (int i = 0; i < DATASET_COUNT; i++) {
@@ -355,6 +358,7 @@ public class MainActivity extends SecureAppCompatActivity {
     }
 
     private void newMasterDialog() {
+        wasNewUser = true;
         // Create a dialog requesting the master password
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -467,7 +471,17 @@ public class MainActivity extends SecureAppCompatActivity {
     protected void onResume() {
         Log.d(getClass().getSimpleName(), "onResume called");
         super.onResume();
-        refreshRecyclerView();
+        try {
+            Crypto.init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!Crypto.isNewUser() && wasNewUser) {
+            wasNewUser = false;
+            setupRecycler();
+        } else {
+            refreshRecyclerView();
+        }
     }
 
     public void refreshRecyclerView() {
@@ -477,6 +491,8 @@ public class MainActivity extends SecureAppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    private boolean mttpshown = false;
 
     private void showIntroMTTP() {
         new MaterialTapTargetPrompt.Builder(MainActivity.this)
@@ -496,7 +512,8 @@ public class MainActivity extends SecureAppCompatActivity {
                             newActivityIntent.putExtra("MASTER_KEY", masterKey);
                             // Start the EditEntryActivity
                             startActivity(newActivityIntent);
-                        } else if (state == MaterialTapTargetPrompt.STATE_DISMISSED) {
+                            mttpshown = true;
+                        } else if (state == MaterialTapTargetPrompt.STATE_DISMISSED && !mttpshown) {
                             showIntroMTTP();
                         }
                     }
