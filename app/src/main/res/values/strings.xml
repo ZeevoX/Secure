@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (C) 2018 Timothy "ZeevoX" Langer
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+  ~ except in compliance with the License. You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the
+  ~ License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the specific language governing
+  ~ permissions and limitations under the License.
+  --><resources>
+    <string name="action_add">ADD</string>
+    <string name="action_cancel">@android:string/cancel</string>
+    <string name="action_ok">@android:string/ok</string>
+
+    <string name="app_name" translatable="false">Secure</string>
+    <string name="app_name_permanent" translatable="false">Secure</string>
+
+    <string name="dialog_master_pass_desc">To add, edit or delete an entry in your password database, you must enter the master password.</string>
+    <string name="dialog_master_pass_title">Enter master password</string>
+    <string name="dialog_new_master_pass_desc">To use the Secure app, you need to create a master password that will encrypt all other passwords.</string>
+    <string name="dialog_new_master_pass_input_hint">Enter password</string>
+    <string name="dialog_new_master_pass_repeat_hint">Repeat password</string>
+    <string name="dialog_new_master_pass_title">Create new master password</string>
+
+    <string name="error_occurred_miscellaneous">An error occurred. Please try again.</string>
+    <string name="error_wrong_master_pass">Wrong master password entered!</string>
+    <string name="error_wrong_master_pass_thrice">Wrong master password entered three times consecutively! Closing application!</string>
+
+    <string name="image_desc_application_icon">Application icon</string>
+
+    <string name="input_hint_key_name">Key name</string>
+    <string name="input_hint_master_pass">Master password</string>
+    <string name="input_hint_notes">Notes</string>
+    <string name="input_hint_password">Password</string>
+    <string name="input_hint_username">Username</string>
+
+    <string name="permission_storage_denied">This app requires the storage permission to access your password database. Please try again and grant access to your internal storage.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Secure\'.</string>
+    <string name="permission_storage_rationale">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
+    <string name="permission_storage_required_toast">The storage permission is required for this app.</string>
+
+    <string name="pref_master_pass_each_time_desc">Request the master password every time.</string>
+    <string name="pref_master_pass_each_time_title">Always ask for master password</string>
+    <string name="pref_set_encryption_algorithm_title">Set encryption algorithm</string>
+    <string-array name="pref_set_encryption_algorithm_titles">
+        <item>MD5 - PKCS #5</item>
+        <item>AES 256-bit</item>
+    </string-array>
+    <string-array name="pref_set_encryption_algorithm_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string name="sample_rv_text" translatable="false">Element</string>
+
+    <string name="title_activity_new_entry">Add a new entry</string>
+    <string name="title_activity_settings">Settings</string>
+</resources>
