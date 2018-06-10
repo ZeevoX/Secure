@@ -47,8 +47,7 @@ public class Entries {
 
     Entries() throws Exception {
         data = new File(Environment.getExternalStorageDirectory(), FILENAME);
-        documentBuilder =
-                DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         if (!data.exists()) {
             save();
         }

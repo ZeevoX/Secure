@@ -15,13 +15,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
+        <!--<item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="isLightTheme">true</item>
+        <item name="isLightTheme">true</item>-->
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
@@ -43,9 +43,9 @@
         <item name="android:colorBackground">@android:color/black</item>
     </style>-->
 
-    <style name="ThemeOverlay.AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="ThemeOverlay.AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
         <!-- Parent theme sets colorControlNormal to textColorPrimary. -->
-        <item name="android:textColorPrimary">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 
 </resources>

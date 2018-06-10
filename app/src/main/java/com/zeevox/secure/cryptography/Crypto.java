@@ -14,7 +14,8 @@
 
 package com.zeevox.secure.cryptography;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.zeevox.secure.util.LogUtils;
@@ -87,14 +88,19 @@ public class Crypto {
      *                    these credentials are related to)
      * @param keyUsername The parameter that specifies the username of the key
      * @param keyPassword The parameter that specifies the password of the key
-     * @param keyNotes    //TODO The parameter that specifies any notes related
-     *                    to the key (e.g. security questions)
+     * @param keyNotes    The parameter that specifies any notes related to the
+     *                    key (e.g. security questions)
      * @throws Exception Throws an exception due to the fact that
      *                   Entries.addEntrySorted(Entry entry) throws an exception too.
      */
-    public static void addEntry(String entryName, String keyUsername, String keyPassword, @Nullable String keyNotes, String masterPass) throws Exception {
+    public static void addEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
+                                @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
+        String notesEnc = null;
+        if (keyNotes != null) {
+            notesEnc = Encryptor.encrypt(keyNotes, masterPass.toCharArray());
+        }
         Entry entry = new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
-                Encryptor.encrypt(keyPassword, masterPass.toCharArray()));
+                Encryptor.encrypt(keyPassword, masterPass.toCharArray()), notesEnc);
         mEntries.addEntrySorted(entry);
     }
 

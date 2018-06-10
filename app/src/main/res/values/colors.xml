@@ -14,9 +14,15 @@
   -->
 
 <resources>
-    <color name="colorPrimary">@color/google_grey_100</color>
-    <color name="colorPrimaryDark">@color/google_grey_300</color>
-    <color name="colorAccent">@color/google_blue_500</color>
+    <color name="colorPrimary">@color/secure_primary</color>
+    <color name="colorPrimaryDark">@color/secure_primary_dark</color>
+    <color name="colorAccent">@color/secure_accent_dark</color>
+
+    <color name="secure_primary">#6370FF</color>
+    <color name="secure_primary_dark">#343EB2</color>
+    <color name="secure_primary_light">#7D88FF</color>
+    <color name="secure_accent">#FFE06D</color>
+    <color name="secure_accent_dark">#B29322</color>
 
 
     <!-- Material Design color palette for Google products -->

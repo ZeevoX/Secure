@@ -26,18 +26,26 @@ import org.w3c.dom.NodeList;
 public class Entry {
 
     final public String key;
-    final public String name, pass; // name and pass are stored encrypted
+    final public String name, pass, notes; // name and pass are stored encrypted
 
     public Entry(String k, String n, String p) throws Exception {
         key = k;
         name = n;
         pass = p;
+        notes = null;
+    }
+
+    public Entry(String k, String n, String p, String t) throws Exception {
+        key = k;
+        name = n;
+        pass = p;
+        notes = t;
     }
 
     // Constructor: de-serialize Entry from XML
     public Entry(Node node) throws Exception {
         NodeList list = node.getChildNodes();
-        String k = null, n = null, p = null;
+        String k = null, n = null, p = null, t = null;
         for (int i = 0; i < list.getLength(); i++) {
             Node subnode = list.item(i);
             String subNodeName = subnode.getNodeName();
@@ -54,11 +62,16 @@ public class Entry {
                     if (p != null) throw new RuntimeException("pass was already set");
                     p = StringUtils.fromHex(extractValue(subnode));
                     break;
+                case "notes":
+                    if (t != null) throw new RuntimeException("notes was already set");
+                    t = StringUtils.fromHex(extractValue(subnode));
+                    break;
             }
         }
         key = k;
         name = n;
         pass = p;
+        notes = t;
     }
 
     public String toString() {
@@ -77,6 +90,11 @@ public class Entry {
         field = document.createElement("pass");
         field.setAttribute("value", StringUtils.toHex(pass));
         docEntry.appendChild(field);
+        if (notes != null) {
+            field = document.createElement("notes");
+            field.setAttribute("value", StringUtils.toHex(notes));
+            docEntry.appendChild(field);
+        }
         return docEntry;
     }
 

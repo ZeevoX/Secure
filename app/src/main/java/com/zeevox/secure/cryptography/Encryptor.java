@@ -56,9 +56,6 @@ public class Encryptor {
         cipher.init(Cipher.ENCRYPT_MODE,
                 getSecretKey(password),
                 pbeParamSpec);
-        /*byte[] sBytes = s.getBytes("ISO-8859-1");
-        byte[] cipheredBytes = cipher.doFinal(sBytes);
-        return new String(cipheredBytes, "ISO-8859-1");*/
         return StringUtils.bytes2str(cipher.doFinal(StringUtils.str2bytes(s)));
     }
 

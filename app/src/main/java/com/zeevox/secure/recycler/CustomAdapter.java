@@ -20,12 +20,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -45,6 +45,7 @@ import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Encryptor;
 import com.zeevox.secure.cryptography.Entry;
 import com.zeevox.secure.ui.MainActivity;
+import com.zeevox.secure.ui.PasswordsBottomModalSheet;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -292,6 +293,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             dialog.show();
         }
 
+        PasswordsBottomModalSheet passwordsBottomModalSheet = new PasswordsBottomModalSheet();
+
         /**
          * Master password dialog
          */
@@ -303,8 +306,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                                 .getBoolean(Flags.ASK_MASTER_PASS_EACH_TIME, true)) {
                     // Don't continue any further
                     Entry entry = Crypto.getEntries().getEntryAt(getAdapterPosition());
-                    showKeyInfoDialog(activity, entry.key, Encryptor.decrypt(entry.name,
-                            MainActivity.masterKey.toCharArray()), Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()));
+                    String keyNotes = null;
+                    if (entry.notes != null) {
+                        keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                    }
+                    passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
+                            Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
+                    passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
                     return;
                 }
             } catch (Exception e) {
@@ -367,8 +375,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                             dialog.dismiss();
                             // Show key info
                             Entry entry = Crypto.getEntries().getEntryAt(getAdapterPosition());
-                            showKeyInfoDialog(activity, entry.key, Encryptor.decrypt(entry.name,
-                                    MainActivity.masterKey.toCharArray()), Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()));
+                            String keyNotes = null;
+                            if (entry.notes != null) {
+                                keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                            }
+                            passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
+                                    Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
+                            passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
                         } else {
                             // Wrong password, show the dialog again with an error.
                             final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);

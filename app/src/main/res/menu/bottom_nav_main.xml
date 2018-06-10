@@ -13,14 +13,8 @@
   ~ permissions and limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-
-    <solid android:color="@color/google_grey_300" />
-
-    <padding
-        android:bottom="10dp"
-        android:left="10dp"
-        android:right="10dp"
-        android:top="10dp" />
-</shape>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="All" android:icon="@drawable/ic_all" />
+    <item android:title="Recent" android:icon="@drawable/ic_recent"/>
+    <item android:title="Labels" android:icon="@drawable/ic_label" />
+</menu>

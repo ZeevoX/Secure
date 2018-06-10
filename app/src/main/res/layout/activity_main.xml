@@ -13,34 +13,52 @@
   ~ permissions and limitations under the License.
   -->
 
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/root_main"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     tools:context="com.zeevox.secure.ui.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/rv_thumb_drawable"
         app:fastScrollHorizontalTrackDrawable="@drawable/rv_line_drawable"
         app:fastScrollVerticalThumbDrawable="@drawable/rv_thumb_drawable"
-        app:fastScrollVerticalTrackDrawable="@drawable/rv_line_drawable" />
+        app:fastScrollVerticalTrackDrawable="@drawable/rv_line_drawable"
+        tools:listitem="@layout/recycler_item" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_margin"
         android:clickable="true"
         android:focusable="true"
-        app:layout_anchor="@id/recycler_view"
-        app:layout_anchorGravity="bottom|right|end"
-        android:layout_margin="@dimen/activity_margin"
+        app:backgroundTint="@color/secure_accent"
         android:src="@drawable/ic_add"
-        app:fabSize="normal" />
-</android.support.design.widget.CoordinatorLayout>
+        android:visibility="visible"
+        app:fabSize="normal"
+        app:layout_anchor="@id/bottom_app_bar"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:layout_width="match_parent"
+        app:fabAlignmentMode="end"
+        app:fabAttached="true"
+        android:elevation="8dp"
+        app:elevation="8dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/bottom_app_bar"
+        app:title="@string/app_name"
+        android:backgroundTint="@color/secure_accent"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        android:layout_gravity="bottom" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

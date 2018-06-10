@@ -17,19 +17,27 @@ package com.zeevox.secure.ui;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -53,8 +61,6 @@ import com.zeevox.secure.recycler.CustomAdapter;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class MainActivity extends SecureAppCompatActivity {
 
@@ -90,6 +96,9 @@ public class MainActivity extends SecureAppCompatActivity {
         // Inflate the layout
         setContentView(R.layout.activity_main);
 
+        // Set the toolbar having inflated layout
+        //setSupportActionBar((Toolbar) findViewById(R.id.toolbar_main));
+
         // Find the RecyclerView in the layout
         mRecyclerView = findViewById(R.id.recycler_view);
 
@@ -117,7 +126,7 @@ public class MainActivity extends SecureAppCompatActivity {
         }
 
         // Add onClick functionality for the FloatingActionButton
-        FloatingActionButton floatingActionButton = findViewById(R.id.main_fab);
+        final FloatingActionButton floatingActionButton = findViewById(R.id.main_fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,19 +134,25 @@ public class MainActivity extends SecureAppCompatActivity {
                 showMasterDialog();
             }
         });
-        if (BuildConfig.DEBUG) {
-            floatingActionButton.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    startActivity(new Intent(MainActivity.this, IntroActivity.class));
-                    return true;
-                }
-            });
-        }
 
         // Enable a contextual menu for recyclerView items. For more info, see
         // https://developer.android.com/guide/topics/ui/menus.html#context-menu
         registerForContextMenu(mRecyclerView);
+
+        // Hide bottom navigation bar when scrolling
+        final BottomAppBar mBottomAppBar = findViewById(R.id.bottom_app_bar);
+        setSupportActionBar(mBottomAppBar);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mBottomAppBar.setTranslationY(Math.max(0f, Math.min((float) mBottomAppBar.getHeight(), mBottomAppBar.getTranslationY() + dy)));
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
 
@@ -229,15 +244,18 @@ public class MainActivity extends SecureAppCompatActivity {
             Arrays.sort(mDataSet);
         }
         // If there's nothing in the password database, help the user get started
-        if (mDataSet.length == 0) {
+        if (mDataSet.length == 0 && Crypto.isNewUser() && !displayingDialog) {
             showIntroMTTP();
         }
     }
+
+    private boolean displayingDialog = false;
 
     /**
      * Master password dialog
      */
     private void showMasterDialog() {
+        displayingDialog = true;
         try {
             if (masterKey != null && Crypto.verifyMasterPass(masterKey) &&
                     !PreferenceManager.getDefaultSharedPreferences(this)
@@ -287,6 +305,7 @@ public class MainActivity extends SecureAppCompatActivity {
         builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                displayingDialog = false;
                 dialog.cancel();
             }
         });
@@ -312,6 +331,7 @@ public class MainActivity extends SecureAppCompatActivity {
                     if (Crypto.verifyMasterPass(masterKey)) {
                         // Dismiss the dialog
                         dialog.dismiss();
+                        displayingDialog = false;
                         // Reset attempts count
                         attempts[0] = 0;
                         // Create the intent
@@ -351,6 +371,7 @@ public class MainActivity extends SecureAppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     dialog.dismiss();
+                    displayingDialog = false;
                     showErrorSnackBar();
                 }
             }
@@ -358,7 +379,7 @@ public class MainActivity extends SecureAppCompatActivity {
     }
 
     private void newMasterDialog() {
-        wasNewUser = true;
+        displayingDialog = true;
         // Create a dialog requesting the master password
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -415,6 +436,8 @@ public class MainActivity extends SecureAppCompatActivity {
                     masterKey = masterKeyInput.getText().toString();
                     // Dismiss the dialog
                     dialog.dismiss();
+                    displayingDialog = false;
+                    wasNewUser = true;
                     // Help the user get started
                     showIntroMTTP();
                 } else {
@@ -458,6 +481,21 @@ public class MainActivity extends SecureAppCompatActivity {
                 }).show();
     }
 
+    @Override
+    protected void onStart() {
+        Log.d(getClass().getSimpleName(), "onStart called");
+        super.onStart();
+        try {
+            Crypto.init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!Crypto.isNewUser()) {
+            wasNewUser = false;
+            setupRecycler();
+        }
+    }
+
     /**
      * Dispatch onResume() to fragments.  Note that for better inter-operation
      * with older versions of the platform, at the point of this call the
@@ -471,17 +509,6 @@ public class MainActivity extends SecureAppCompatActivity {
     protected void onResume() {
         Log.d(getClass().getSimpleName(), "onResume called");
         super.onResume();
-        try {
-            Crypto.init();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (!Crypto.isNewUser() && wasNewUser) {
-            wasNewUser = false;
-            setupRecycler();
-        } else {
-            refreshRecyclerView();
-        }
     }
 
     public void refreshRecyclerView() {
@@ -495,7 +522,13 @@ public class MainActivity extends SecureAppCompatActivity {
     private boolean mttpshown = false;
 
     private void showIntroMTTP() {
-        new MaterialTapTargetPrompt.Builder(MainActivity.this)
+        // Create the intent
+        Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+        // Send the master key to the new entry activity too
+        newActivityIntent.putExtra("MASTER_KEY", masterKey);
+        // Start the EditEntryActivity
+        startActivity(newActivityIntent);
+        /*new MaterialTapTargetPrompt.Builder(MainActivity.this)
                 .setTarget(findViewById(R.id.main_fab))
                 .setPrimaryText("Add a password to your database")
                 .setSecondaryText("Get started by adding an entry to your password list")
@@ -518,6 +551,6 @@ public class MainActivity extends SecureAppCompatActivity {
                         }
                     }
                 })
-                .show();
+                .show();*/
     }
 }

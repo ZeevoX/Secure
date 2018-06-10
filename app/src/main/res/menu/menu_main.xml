@@ -17,13 +17,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
-        android:icon="@drawable/ic_search"
-        android:title="@android:string/search_go"
-        android:visible="false"
         android:enabled="false"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/ic_search"
+        app:showAsAction="ifRoom"
+        android:title="@android:string/search_go"
+        android:visible="false" />
     <item
         android:id="@+id/action_settings"
-        android:title="@string/title_activity_settings"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:title="@string/title_activity_settings" />
+    <item
+        android:id="@+id/action_about"
+        app:showAsAction="never"
+        android:title="About"
+        android:enabled="false" />
+    <item
+        android:id="@+id/action_send_feedback"
+        app:showAsAction="never"
+        android:title="Send feedback"
+        android:enabled="false" />
 </menu>

@@ -18,12 +18,14 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +35,8 @@ import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.util.LogUtils;
+
+import java.util.Objects;
 
 public class EditEntryActivity extends SecureAppCompatActivity {
 
@@ -132,13 +136,18 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     private void addEntryComplete() {
         try {
             Crypto.init();
-            Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(), passwordInput.getText().toString(), null, masterKey);
+            String keyNotes = null;
+            if (!Objects.equals(keyNotesInput.getText().toString(), "")) {
+                keyNotes = keyNotesInput.getText().toString();
+            }
+            Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
+                    passwordInput.getText().toString(), keyNotes, masterKey);
             finish();
         } catch (Exception e) {
             Snackbar.make(findViewById(R.id.root_new_entry),
                     "An entry with the name " + keyNameInput.getText().toString() + " already exists.",
                     Snackbar.LENGTH_LONG).show();
-            LogUtils.error(TAG, e);
+            e.printStackTrace();
         }
     }
 
