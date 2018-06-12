@@ -25,7 +25,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +33,6 @@ import android.widget.Toast;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
-import com.zeevox.secure.util.LogUtils;
 
 import java.util.Objects;
 
@@ -53,6 +51,12 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     protected TextInputLayout passwordLayout;
     protected TextInputEditText passwordInput;
     protected String masterKey;
+
+    protected String entryName;
+    protected String entryKey;
+    protected String entryPass;
+    protected String entryNotes;
+    private int adapterPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,12 +88,24 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         // Set up the input
         keyNameLayout = findViewById(R.id.key_name_layout);
         keyNameInput = findViewById(R.id.key_name_input);
-        keyNotesLayout = findViewById(R.id.key_notes_layout);
-        keyNotesInput = findViewById(R.id.key_notes_input);
         usernameLayout = findViewById(R.id.username_layout);
         usernameInput = findViewById(R.id.username_input);
         passwordLayout = findViewById(R.id.password_layout);
         passwordInput = findViewById(R.id.password_input);
+        keyNotesLayout = findViewById(R.id.key_notes_layout);
+        keyNotesInput = findViewById(R.id.key_notes_input);
+
+        // If editing (not creating new entry), get info.
+        entryName = getIntent().getStringExtra("entryName");
+        entryKey = getIntent().getStringExtra("entryKey");
+        entryPass = getIntent().getStringExtra("entryPass");
+        entryNotes = getIntent().getStringExtra("entryNotes");
+        adapterPosition = getIntent().getIntExtra("adapterPosition", -1);
+
+        keyNameInput.setText(entryName);
+        usernameInput.setText(entryKey);
+        passwordInput.setText(entryPass);
+        keyNotesInput.setText(entryNotes);
     }
 
     @Override
@@ -136,6 +152,10 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     private void addEntryComplete() {
         try {
             Crypto.init();
+            if (entryName != null && adapterPosition != -1) {
+                Crypto.getEntries().removeEntryAt(adapterPosition);
+            }
+
             String keyNotes = null;
             if (!Objects.equals(keyNotesInput.getText().toString(), "")) {
                 keyNotes = keyNotesInput.getText().toString();

@@ -19,7 +19,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.preference.PreferenceManager;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.AlertDialog;
@@ -44,8 +47,12 @@ import com.zeevox.secure.R;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Encryptor;
 import com.zeevox.secure.cryptography.Entry;
+import com.zeevox.secure.ui.EditEntryActivity;
 import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
+import com.zeevox.secure.util.LogUtils;
+
+import javax.crypto.BadPaddingException;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -76,7 +83,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        //Log.d(TAG, "Element " + position + " set.");
+        //LogUtils.d(TAG, "Element " + position + " set.");
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
@@ -111,8 +118,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 public void onClick(View v) {
                     activity = ((AppCompatActivity) v.getContext());
                     try {
-                        showMasterDialog();
-                        Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
+                        showMasterDialog(MASTER_DIALOG_KEY_INFO, getAdapterPosition());
+                        LogUtils.d(TAG, "Element " + getAdapterPosition() + " clicked.");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -124,7 +131,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 @Override
                 public boolean onLongClick(View view) {
                     activity = ((AppCompatActivity) view.getContext());
-                    Log.d(TAG, "Element " + getAdapterPosition() + " long clicked.");
+                    LogUtils.d(TAG, "Element " + getAdapterPosition() + " long clicked.");
 
                     if (mActionMode != null) {
                         return false;
@@ -169,7 +176,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             switch (item.getItemId()) {
                 case R.id.action_item_edit:
                     try {
-                        Log.d(TAG, "Edit item with id " + getAdapterPosition());
+                        showMasterDialog(MASTER_DIALOG_EDIT_ENTRY, getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();
                     } catch (Exception e) {
@@ -179,7 +186,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 case R.id.action_item_delete:
                     try {
                         Crypto.getEntries().removeEntryAt(getAdapterPosition());
-                        Log.d(TAG, "Delete item with id " + getAdapterPosition());
+                        //TODO refresh recyclerview to notify user of changes
+                        LogUtils.d(TAG, "Delete item with id " + getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();
                     } catch (Exception e) {
@@ -201,118 +209,44 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             return textView;
         }
 
-        /**
-         * @param activity    The parameter that specifies the activity and the context in which this dialog should be shown
-         * @param entryName   The parameter that specifies the dialog title to be used, this is the entry name.
-         * @param keyUsername The parameter that specifies the key's username to show to the user
-         * @param keyPassword The parameter that specifies the key's password to show to the user
-         */
-        void showKeyInfoDialog(Activity activity, final String entryName, final String keyUsername, final String keyPassword) {
-            // Create the dialog
-            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-            // Prepare the layout
-            LayoutInflater inflater = activity.getLayoutInflater();
-
-            // Create a null parent since there really is no parent - this is a dialog!
-            final ViewGroup nullParent = null;
-
-            // Create the layout
-            final View alertLayout = inflater.inflate(R.layout.dialog_key_info, nullParent, false);
-
-            // Inflate the layout
-            builder.setView(alertLayout);
-
-            // Populate the dialog with information
-            TextView entryNameTextView = alertLayout.findViewById(R.id.dialog_key_info_entry_name);
-            entryNameTextView.setText(entryName);
-            TextView keyUsernameTextView = alertLayout.findViewById(R.id.dialog_key_info_username);
-            keyUsernameTextView.setText(keyUsernameTextView.getText().toString().replace("%s", keyUsername));
-            TextView keyPasswordTextView = alertLayout.findViewById(R.id.dialog_key_info_password);
-            keyPasswordTextView.setText(keyPasswordTextView.getText().toString().replace("%s", keyPassword));
-
-            // Handle [long] clicking the elements of the layout
-            entryNameTextView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("Account URL", entryName);
-                    if (clipboard != null) {
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(view.getContext(), "Account URL copied successfully.", Toast.LENGTH_SHORT).show();
-                        return true;
-                    } else {
-                        Toast.makeText(view.getContext(), "Error occurred copying account URL. Please try again.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                }
-            });
-            keyUsernameTextView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("Account username", keyUsername);
-                    if (clipboard != null) {
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(view.getContext(), "Username copied successfully.", Toast.LENGTH_SHORT).show();
-                        return true;
-                    } else {
-                        Toast.makeText(view.getContext(), "Error occurred copying username. Please try again.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                }
-            });
-            keyPasswordTextView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("Account password", keyPassword);
-                    if (clipboard != null) {
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(view.getContext(), "Password copied successfully.", Toast.LENGTH_SHORT).show();
-                        return true;
-                    } else {
-                        Toast.makeText(view.getContext(), "Error occurred copying password. Please try again.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                }
-            });
-
-            // Set up the positive "OK" action button
-            builder.setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
-
-            // Finalize the dialog
-            final AlertDialog dialog = builder.create();
-
-            // Show the dialog
-            dialog.show();
-        }
-
         PasswordsBottomModalSheet passwordsBottomModalSheet = new PasswordsBottomModalSheet();
+
+        static final int MASTER_DIALOG_KEY_INFO = 1;
+        static final int MASTER_DIALOG_EDIT_ENTRY = 2;
 
         /**
          * Master password dialog
          */
-        private void showMasterDialog() {
+        private void showMasterDialog(final int command, final int adapterPosition) {
             try {
                 Crypto.init();
                 if (MainActivity.masterKey != null && Crypto.verifyMasterPass(MainActivity.masterKey) &&
                         !PreferenceManager.getDefaultSharedPreferences(activity)
                                 .getBoolean(Flags.ASK_MASTER_PASS_EACH_TIME, true)) {
                     // Don't continue any further
-                    Entry entry = Crypto.getEntries().getEntryAt(getAdapterPosition());
-                    String keyNotes = null;
-                    if (entry.notes != null) {
-                        keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                    Entry entry = Crypto.getEntries().getEntryAt(adapterPosition);
+                    switch (command) {
+                        case MASTER_DIALOG_KEY_INFO:
+                            String keyNotes = null;
+                            if (entry.notes != null) {
+                                keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                            }
+                            passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
+                                    Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
+                            passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
+                            break;
+                        case MASTER_DIALOG_EDIT_ENTRY:
+                            Intent intent = new Intent(activity, EditEntryActivity.class);
+                            intent.putExtra("entryKey", entry.key);
+                            intent.putExtra("entryName", Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()));
+                            intent.putExtra("entryPass", Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()));
+                            if (entry.notes != null) {
+                                intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray()));
+                            }
+                            intent.putExtra("adapterPosition", adapterPosition);
+                            activity.startActivity(intent);
+                            break;
                     }
-                    passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
-                            Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
-                    passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
                     return;
                 }
             } catch (Exception e) {
@@ -374,16 +308,31 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                             // Dismiss the dialog
                             dialog.dismiss();
                             // Show key info
-                            Entry entry = Crypto.getEntries().getEntryAt(getAdapterPosition());
-                            String keyNotes = null;
-                            if (entry.notes != null) {
-                                keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                            Entry entry = Crypto.getEntries().getEntryAt(adapterPosition);
+                            switch (command) {
+                                case MASTER_DIALOG_KEY_INFO:
+                                    String keyNotes = null;
+                                    if (entry.notes != null) {
+                                        keyNotes = Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray());
+                                    }
+                                    passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
+                                            Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
+                                    passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
+                                    break;
+                                case MASTER_DIALOG_EDIT_ENTRY:
+                                    Intent intent = new Intent(activity, EditEntryActivity.class);
+                                    intent.putExtra("entryKey", entry.key);
+                                    intent.putExtra("entryName", Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()));
+                                    intent.putExtra("entryPass", Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()));
+                                    if (entry.notes != null) {
+                                        intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, MainActivity.masterKey.toCharArray()));
+                                    }
+                                    intent.putExtra("adapterPosition", adapterPosition);
+                                    activity.startActivity(intent);
+                                    break;
                             }
-                            passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, MainActivity.masterKey.toCharArray()),
-                                    Encryptor.decrypt(entry.pass, MainActivity.masterKey.toCharArray()), keyNotes);
-                            passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
                         } else {
-                            // Wrong password, show the dialog again with an error.
+                            // Wrong password, show the dialog again with an e.
                             final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
                             masterKeyLayout.setErrorEnabled(true);
                             masterKeyLayout.setError(activity.getResources().getString(R.string.error_wrong_master_pass));
@@ -404,7 +353,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                             MainActivity.attempts[0] = MainActivity.attempts[0] + 1;
                             // If more than three wrong attempts have been made, block the user.
                             if (MainActivity.attempts[0] >= Flags.MAX_ATTEMPTS) {
-                                // Show an error as a toast message
+                                // Show an e as a toast message
                                 Toast.makeText(activity, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
                                 // Close ALL running activities of this app
                                 activity.finishAffinity();

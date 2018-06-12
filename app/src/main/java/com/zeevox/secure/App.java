@@ -22,9 +22,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -34,6 +31,10 @@ import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.util.PermissionUtils;
 
 import java.util.Random;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class App extends SecureAppCompatActivity {
 
@@ -67,18 +68,15 @@ public class App extends SecureAppCompatActivity {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("intro_shown", false)) {
-                startActivity(new Intent(App.this, MainActivity.class).putExtra("SHOW_INTO", true));
-                finish();
-            } else {
-                // Permission is not granted; request the permission
-                ActivityCompat.requestPermissions(App.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSIONS_REQUEST);
 
-                // PERMISSIONS_REQUEST is an app-defined int constant.
-                // The callback method gets the result of the request.
-            }
+            // Permission is not granted; request the permission
+            ActivityCompat.requestPermissions(App.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST);
+
+            // PERMISSIONS_REQUEST is an app-defined int constant.
+            // The callback method gets the result of the request.
+
         } else {
             // Permission has already been granted
             unlock();

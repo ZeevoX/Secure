@@ -17,28 +17,10 @@ package com.zeevox.secure.ui;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,17 +32,28 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.zeevox.secure.BuildConfig;
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.recycler.CustomAdapter;
+import com.zeevox.secure.util.LogUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends SecureAppCompatActivity {
 
@@ -72,6 +65,8 @@ public class MainActivity extends SecureAppCompatActivity {
     private String[] mDataSet;
     private LinearLayoutManager mLayoutManager;
     private boolean wasNewUser = false;
+    private boolean displayingDialog = false;
+    private boolean mttpshown = false;
 
     public static String generateRandomWord() {
         Random random = new Random();
@@ -89,7 +84,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(getClass().getSimpleName(), "onCreate called");
+        LogUtils.d(getClass().getSimpleName(), "onCreate called");
 
         super.onCreate(savedInstanceState);
 
@@ -116,7 +111,7 @@ public class MainActivity extends SecureAppCompatActivity {
         try {
             Crypto.init();
             if (Crypto.isNewUser()) {
-                Log.d(getClass().getSimpleName(), "New user!");
+                LogUtils.d(getClass().getSimpleName(), "New user!");
                 newMasterDialog();
             } else {
                 setupRecycler();
@@ -142,19 +137,7 @@ public class MainActivity extends SecureAppCompatActivity {
         // Hide bottom navigation bar when scrolling
         final BottomAppBar mBottomAppBar = findViewById(R.id.bottom_app_bar);
         setSupportActionBar(mBottomAppBar);
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                mBottomAppBar.setTranslationY(Math.max(0f, Math.min((float) mBottomAppBar.getHeight(), mBottomAppBar.getTranslationY() + dy)));
-            }
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-        });
     }
-
 
     public void setupRecycler() {
         // Initialize dataset, this data would usually come
@@ -172,6 +155,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Add item separators
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
+        
         mRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
@@ -248,8 +232,6 @@ public class MainActivity extends SecureAppCompatActivity {
             showIntroMTTP();
         }
     }
-
-    private boolean displayingDialog = false;
 
     /**
      * Master password dialog
@@ -341,7 +323,7 @@ public class MainActivity extends SecureAppCompatActivity {
                         // Start the EditEntryActivity
                         startActivity(newActivityIntent);
                     } else {
-                        // Wrong password, show the dialog again with an error.
+                        // Wrong password, show the dialog again with an e.
                         final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
                         masterKeyLayout.setErrorEnabled(true);
                         masterKeyLayout.setError(getString(R.string.error_wrong_master_pass));
@@ -362,7 +344,7 @@ public class MainActivity extends SecureAppCompatActivity {
                         attempts[0] = attempts[0] + 1;
                         // If more than three wrong attempts have been made, block the user.
                         if (attempts[0] >= Flags.MAX_ATTEMPTS) {
-                            // Show an error as a toast message
+                            // Show an e as a toast message
                             Toast.makeText(MainActivity.this, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
                             // Close ALL running activities of this app
                             finishAffinity();
@@ -483,7 +465,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
     @Override
     protected void onStart() {
-        Log.d(getClass().getSimpleName(), "onStart called");
+        LogUtils.d(getClass().getSimpleName(), "onStart called");
         super.onStart();
         try {
             Crypto.init();
@@ -507,7 +489,7 @@ public class MainActivity extends SecureAppCompatActivity {
      */
     @Override
     protected void onResume() {
-        Log.d(getClass().getSimpleName(), "onResume called");
+        LogUtils.d(getClass().getSimpleName(), "onResume called");
         super.onResume();
     }
 
@@ -518,8 +500,6 @@ public class MainActivity extends SecureAppCompatActivity {
             e.printStackTrace();
         }
     }
-
-    private boolean mttpshown = false;
 
     private void showIntroMTTP() {
         // Create the intent

@@ -19,8 +19,8 @@
     android:id="@+id/root_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:clipToPadding="false"
+    android:fitsSystemWindows="true"
     tools:context="com.zeevox.secure.ui.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -41,24 +41,27 @@
         android:layout_margin="@dimen/activity_margin"
         android:clickable="true"
         android:focusable="true"
-        app:backgroundTint="@color/secure_accent"
         android:src="@drawable/ic_add"
         android:visibility="visible"
+        app:backgroundTint="@color/secure_accent"
         app:fabSize="normal"
         app:layout_anchor="@id/bottom_app_bar"
         app:layout_anchorGravity="bottom|right|end" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_bar"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
         android:layout_width="match_parent"
-        app:fabAlignmentMode="end"
-        app:fabAttached="true"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/secure_accent"
         android:elevation="8dp"
         app:elevation="8dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/bottom_app_bar"
-        app:title="@string/app_name"
-        android:backgroundTint="@color/secure_accent"
-        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
-        android:layout_gravity="bottom" />
+        app:fabAlignmentMode="end"
+        app:fabAttached="true"
+        app:fabCradleRoundedCornerRadius="26dp"
+        app:fabCradleVerticalOffset="8dp"
+        app:hideOnScroll="true"
+        app:title="@string/app_name" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

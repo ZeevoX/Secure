@@ -16,7 +16,7 @@ package com.zeevox.secure;
 
 @SuppressWarnings({"PointlessBooleanExpression", "WeakerAccess"})
 public class Flags {
-    public static final boolean SAMPLE_DATA = BuildConfig.DEBUG && false;
+    public static final boolean SAMPLE_DATA = false;
     public static final int MAX_ATTEMPTS = 3;
     public static final String ASK_MASTER_PASS_EACH_TIME = "master_pass_each_time";
     public static final String CLEAR_DATABASE = "delete_database";

@@ -16,15 +16,17 @@ package com.zeevox.secure.util;
 
 import android.util.Log;
 
+import com.zeevox.secure.BuildConfig;
+
 public class LogUtils {
 
     /**
-     * Log an exception's error message to Android's "logcat" in red error message text.
+     * Log an exception's error message to Android's "logcat" in red e message text.
      *
      * @param tag       The activity or class' identifying tag; this is usually the class or method name.
-     * @param exception The exception that has occurred in the code to log in red error text/style.
+     * @param exception The exception that has occurred in the code to log in red e text/style.
      */
-    public static void error(String tag, Exception exception) {
+    public static void e(String tag, Exception exception) {
         Log.e(tag, exception.getMessage());
     }
 
@@ -34,7 +36,13 @@ public class LogUtils {
      * @param tag     The activity or class' identifying tag; this is usually the class or method name.
      * @param message The actual error message help text, what the developer should do to fix the exception.
      */
-    public static void error(String tag, String message) {
+    public static void e(String tag, String message) {
         Log.e(tag, message);
+    }
+
+    public static void d(String tag, String message) {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, message);
+        }
     }
 }

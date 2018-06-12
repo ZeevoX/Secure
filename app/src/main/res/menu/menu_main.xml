@@ -13,27 +13,35 @@
   ~ permissions and limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="AppCompatResource" >
     <item
         android:id="@+id/action_search"
         android:enabled="false"
         android:icon="@drawable/ic_search"
-        app:showAsAction="ifRoom"
         android:title="@android:string/search_go"
-        android:visible="false" />
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/sort_by"
+        android:enabled="false"
+        android:icon="@drawable/ic_sort_alpha"
+        android:title="Sort"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
-        app:showAsAction="never"
-        android:title="@string/title_activity_settings" />
+        android:title="@string/title_activity_settings"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_about"
-        app:showAsAction="never"
+        android:enabled="false"
         android:title="About"
-        android:enabled="false" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_send_feedback"
-        app:showAsAction="never"
+        android:enabled="false"
         android:title="Send feedback"
-        android:enabled="false" />
+        app:showAsAction="never" />
 </menu>

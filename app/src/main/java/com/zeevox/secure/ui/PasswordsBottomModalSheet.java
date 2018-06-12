@@ -18,8 +18,6 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +25,7 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.zeevox.secure.R;
+import com.zeevox.secure.util.LogUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,20 +54,20 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
         public void onStateChanged(View view, int newState) {
             switch (newState) {
                 case BottomSheetBehavior.STATE_COLLAPSED: {
-                    Log.d("BSB", "collapsed");
+                    LogUtils.d("BSB", "collapsed");
                 }
                 case BottomSheetBehavior.STATE_SETTLING: {
-                    Log.d("BSB", "settling");
+                    LogUtils.d("BSB", "settling");
                 }
                 case BottomSheetBehavior.STATE_EXPANDED: {
-                    Log.d("BSB", "expanded");
+                    LogUtils.d("BSB", "expanded");
                 }
                 case BottomSheetBehavior.STATE_HIDDEN: {
-                    Log.d("BSB", "hidden");
+                    LogUtils.d("BSB", "hidden");
                     dismiss();
                 }
                 case BottomSheetBehavior.STATE_DRAGGING: {
-                    Log.d("BSB", "dragging");
+                    LogUtils.d("BSB", "dragging");
                 }
 
             }
@@ -76,7 +75,7 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
 
         @Override
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            Log.d("BSB", "sliding " + slideOffset);
+            LogUtils.d("BSB", "sliding " + slideOffset);
         }
     };
 

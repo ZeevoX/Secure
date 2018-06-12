@@ -21,8 +21,6 @@ import android.util.Log;
 import com.zeevox.secure.util.LogUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.BadPaddingException;
@@ -49,15 +47,15 @@ public class Crypto {
      * This method checks whether a user-supplied master password is correct by
      * attempting to decrypt a random entry in the user's password database and
      * returns true if successful. Note that we rely on the BadPaddingException
-     * to return an error if the password supplied is incorrect.
-     * // TODO Replace master password verification method with something better instead of relying on an error to occur.
+     * to return an e if the password supplied is incorrect.
+     * // TODO Replace master password verification method with something better instead of relying on an e to occur.
      *
      * @param masterPass The user-supplied master password that we will be checking.
      *                   This is entered in MainActivity.showMasterDialog
      * @return Returns whether the master password that was supplied was successfully
      * used to decrypt a random key in the database.
      * @throws Exception Allows for graphical managing of any errors that occur,
-     *                   since Entries.getEntries() can result in an error.
+     *                   since Entries.getEntries() can result in an e.
      */
     public static boolean verifyMasterPass(String masterPass) throws Exception {
         try {
@@ -74,8 +72,8 @@ public class Crypto {
                 return false;
             }
         } catch (NullPointerException npe) {
-            LogUtils.error(TAG, npe);
-            LogUtils.error(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
+            LogUtils.e(TAG, npe);
+            LogUtils.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
             return false;
         }
     }
@@ -112,8 +110,8 @@ public class Crypto {
         try {
             return mEntries.isEmpty();
         } catch (NullPointerException npe) {
-            LogUtils.error(TAG, npe);
-            LogUtils.error(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
+            LogUtils.e(TAG, npe);
+            LogUtils.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
             return false;
         }
     }
