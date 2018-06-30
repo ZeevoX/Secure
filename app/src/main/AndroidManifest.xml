@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright (C) 2018 Timothy "ZeevoX" Langer
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -10,7 +12,7 @@
   ~ License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   ~ KIND, either express or implied. See the License for the specific language governing
   ~ permissions and limitations under the License.
-  -->
+-->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zeevox.secure">
@@ -38,7 +40,8 @@
         </activity>
         <activity
             android:name=".ui.MainActivity"
-            android:exported="true" android:theme="@style/AppTheme.NoActionBar">
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -76,6 +79,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.zeevox.secure.ui.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.PassgenActivity"
+            android:label="Generate password"
+            android:parentActivityName=".ui.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+            </intent-filter>
         </activity>
     </application>
 

@@ -55,19 +55,21 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
             switch (newState) {
                 case BottomSheetBehavior.STATE_COLLAPSED: {
                     LogUtils.d("BSB", "collapsed");
+                    //dismiss();
                 }
                 case BottomSheetBehavior.STATE_SETTLING: {
                     LogUtils.d("BSB", "settling");
+
                 }
                 case BottomSheetBehavior.STATE_EXPANDED: {
                     LogUtils.d("BSB", "expanded");
                 }
                 case BottomSheetBehavior.STATE_HIDDEN: {
                     LogUtils.d("BSB", "hidden");
-                    dismiss();
+                    //dismiss();
                 }
                 case BottomSheetBehavior.STATE_DRAGGING: {
-                    LogUtils.d("BSB", "dragging");
+                    LogUtils.d("BSB", "dragging");;
                 }
 
             }

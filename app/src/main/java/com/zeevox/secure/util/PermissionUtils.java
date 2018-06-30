@@ -31,7 +31,7 @@ import com.zeevox.secure.R;
 /**
  * Utility class for access to runtime permissions.
  */
-public abstract class PermissionUtils {
+public class PermissionUtils {
 
     /**
      * Requests the fine location permission. If a rationale with an additional explanation should

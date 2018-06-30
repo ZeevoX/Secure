@@ -66,6 +66,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 }
 
 dependencies {
@@ -74,7 +78,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.0-alpha3'
     implementation 'androidx.recyclerview:recyclerview:1.0.0-alpha3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0-alpha3'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.1'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
     //implementation 'uk.co.samuelwall:material-tap-target-prompt:2.9.0'
     //implementation 'com.heinrichreimersoftware:material-intro:1.6.2'
 }

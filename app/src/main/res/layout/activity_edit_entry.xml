@@ -94,9 +94,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/input_hint_notes"
+                android:imeOptions="normal"
                 android:enabled="true"
-                android:imeOptions="actionNext"
-                android:inputType="textShortMessage" />
+                android:inputType="textMultiLine" />
 
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>

@@ -29,6 +29,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.BottomAppBar" parent="Widget.MaterialComponents.BottomAppBar.Colored">
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:theme">@style/AppTheme.BottomAppBar</item>
+    </style>
+
 <!--    <style name="AppTheme.Dark" parent="Theme.AppCompat">
         <item name="colorPrimary">#212121</item>
         <item name="colorPrimaryDark">#161616</item>

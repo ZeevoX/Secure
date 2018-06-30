@@ -102,8 +102,8 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         entryNotes = getIntent().getStringExtra("entryNotes");
         adapterPosition = getIntent().getIntExtra("adapterPosition", -1);
 
-        keyNameInput.setText(entryName);
-        usernameInput.setText(entryKey);
+        keyNameInput.setText(entryKey);
+        usernameInput.setText(entryName);
         passwordInput.setText(entryPass);
         keyNotesInput.setText(entryNotes);
     }
@@ -161,7 +161,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
                 keyNotes = keyNotesInput.getText().toString();
             }
             Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
-                    passwordInput.getText().toString(), keyNotes, masterKey);
+                    passwordInput.getText().toString(), keyNotes, MainActivity.masterKey);
             finish();
         } catch (Exception e) {
             Snackbar.make(findViewById(R.id.root_new_entry),
@@ -185,14 +185,11 @@ public class EditEntryActivity extends SecureAppCompatActivity {
                 } else {
                     // permission denied, boo!
                     Snackbar.make(findViewById(R.id.root_new_entry), "Storage permission denied; cannot save.", Snackbar.LENGTH_LONG)
-                            .setAction("TRY AGAIN", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    // Permission is not granted; request the permission
-                                    ActivityCompat.requestPermissions(EditEntryActivity.this,
-                                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                            PERMISSIONS_REQUEST);
-                                }
+                            .setAction("TRY AGAIN", view -> {
+                                // Permission is not granted; request the permission
+                                ActivityCompat.requestPermissions(EditEntryActivity.this,
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        PERMISSIONS_REQUEST);
                             }).show();
                 }
             }

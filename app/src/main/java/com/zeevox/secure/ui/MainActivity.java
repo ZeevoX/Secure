@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -50,7 +51,11 @@ import java.util.Objects;
 import java.util.Random;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -122,12 +127,9 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Add onClick functionality for the FloatingActionButton
         final FloatingActionButton floatingActionButton = findViewById(R.id.main_fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Show the dialog requesting the master password
-                showMasterDialog();
-            }
+        floatingActionButton.setOnClickListener(view -> {
+            // Show the dialog requesting the master password
+            showMasterDialog();
         });
 
         // Enable a contextual menu for recyclerView items. For more info, see
@@ -136,7 +138,39 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Hide bottom navigation bar when scrolling
         final BottomAppBar mBottomAppBar = findViewById(R.id.bottom_app_bar);
-        setSupportActionBar(mBottomAppBar);
+        //setSupportActionBar(mBottomAppBar);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        final DrawerLayout mDrawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationOnClickListener(v -> {
+            // Handle the navigation click by showing a BottomDrawer etc.
+            mDrawerLayout.openDrawer(GravityCompat.START);
+        });
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    // set item as selected to persist highlight
+                    menuItem.setChecked(true);
+                    // close drawer when item is tapped
+                    mDrawerLayout.closeDrawers();
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.nav_passgen:
+                            startActivity(new Intent(MainActivity.this, PassgenActivity.class));
+                            break;
+                    }
+
+                    // Add code here to update the UI based on the item selected
+                    // For example, swap UI fragments here
+
+                    return true;
+                });
     }
 
     public void setupRecycler() {
