@@ -16,7 +16,10 @@ package com.zeevox.secure.cryptography;
 
 import com.zeevox.secure.util.StringUtils;
 
+import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -66,5 +69,14 @@ public class Encryptor {
                 getSecretKey(password),
                 pbeParamSpec);
         return StringUtils.bytes2str(cipher.doFinal(StringUtils.str2bytes(c)));
+    }
+
+    public static String encryptAes256(String c, char[] password) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

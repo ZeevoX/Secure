@@ -14,24 +14,12 @@
 
 package com.zeevox.secure.recycler;
 
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.preference.PreferenceManager;
-
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +30,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.cryptography.Crypto;
@@ -52,7 +42,10 @@ import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
 import com.zeevox.secure.util.LogUtils;
 
-import javax.crypto.BadPaddingException;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -185,8 +178,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     return true;
                 case R.id.action_item_delete:
                     try {
-                        Crypto.getEntries().removeEntryAt(getAdapterPosition());
-                        //TODO refresh recyclerview to notify user of changes
+                        showMasterDialog(MASTER_DIALOG_DELETE_ENTRY, getAdapterPosition());
                         LogUtils.d(TAG, "Delete item with id " + getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();
@@ -213,6 +205,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
         static final int MASTER_DIALOG_KEY_INFO = 1;
         static final int MASTER_DIALOG_EDIT_ENTRY = 2;
+        static final int MASTER_DIALOG_DELETE_ENTRY = 3;
 
         /**
          * Master password dialog
@@ -245,6 +238,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                             }
                             intent.putExtra("adapterPosition", adapterPosition);
                             activity.startActivity(intent);
+                            break;
+                        case MASTER_DIALOG_DELETE_ENTRY:
+                            Crypto.getEntries().removeEntryAt(getAdapterPosition());
+                            //TODO refresh recyclerview to notify user of changes
                             break;
                     }
                     return;
@@ -329,6 +326,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                                     }
                                     intent.putExtra("adapterPosition", adapterPosition);
                                     activity.startActivity(intent);
+                                    break;
+                                case MASTER_DIALOG_DELETE_ENTRY:
+                                    Crypto.getEntries().removeEntryAt(getAdapterPosition());
+                                    //TODO refresh recyclerview to notify user of changes
                                     break;
                             }
                         } else {
