@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -38,6 +39,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.zeevox.secure.BuildConfig;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
@@ -171,6 +173,9 @@ public class MainActivity extends SecureAppCompatActivity {
 
                     return true;
                 });
+
+        TextView navHeaderAppVersionText = navigationView.getHeaderView(0).findViewById(R.id.nav_header_app_version);
+        navHeaderAppVersionText.setText(String.format(getString(R.string.nav_header_app_version), BuildConfig.VERSION_NAME));
     }
 
     public void setupRecycler() {

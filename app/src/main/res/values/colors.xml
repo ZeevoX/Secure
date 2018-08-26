@@ -24,6 +24,10 @@
     <color name="secure_accent">#FFE06D</color>
     <color name="secure_accent_dark">#B29322</color>
 
+    <color name="warning_color">#f4511e</color>
+    <color name="hint_color">#42000000</color>
+    <color name="success_color">#009688</color>
+
 
     <!-- Material Design color palette for Google products -->
     <color name="google_red_100">#f4c7c3</color>
