@@ -16,7 +16,7 @@ package com.zeevox.secure.util;
 
 import android.os.Environment;
 
-public class StorageUtils {
+class StorageUtils {
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();

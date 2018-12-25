@@ -18,23 +18,25 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.zeevox.secure.App;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 
 import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class EditEntryActivity extends SecureAppCompatActivity {
 
@@ -42,20 +44,20 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     private static final int PERMISSIONS_REQUEST = 2302;
 
     private final String TAG = this.getClass().getSimpleName();
-    protected TextInputLayout keyNameLayout;
-    protected TextInputEditText keyNameInput;
-    protected TextInputLayout keyNotesLayout;
-    protected TextInputEditText keyNotesInput;
-    protected TextInputLayout usernameLayout;
-    protected TextInputEditText usernameInput;
-    protected TextInputLayout passwordLayout;
-    protected TextInputEditText passwordInput;
-    protected String masterKey;
+    private TextInputLayout keyNameLayout;
+    private TextInputEditText keyNameInput;
+    private TextInputLayout keyNotesLayout;
+    private TextInputEditText keyNotesInput;
+    private TextInputLayout usernameLayout;
+    private TextInputEditText usernameInput;
+    private TextInputLayout passwordLayout;
+    private TextInputEditText passwordInput;
+    private String masterKey;
 
-    protected String entryName;
-    protected String entryKey;
-    protected String entryPass;
-    protected String entryNotes;
+    private String entryName;
+    private String entryKey;
+    private String entryPass;
+    private String entryNotes;
     private int adapterPosition;
 
     @Override
@@ -71,8 +73,9 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         // Add a 'back' button to the toolbar and set
         // the Toolbar title
         try {
-            //noinspection ConstantConditions
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            final Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(getIntent().getBooleanExtra("display_back_button", true));
             getSupportActionBar().setTitle(R.string.title_activity_new_entry);
         } catch (NullPointerException npe) {
             Toast.makeText(this, R.string.error_occurred_miscellaneous, Toast.LENGTH_SHORT).show();
@@ -161,7 +164,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
                 keyNotes = keyNotesInput.getText().toString();
             }
             Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
-                    passwordInput.getText().toString(), keyNotes, MainActivity.masterKey);
+                    passwordInput.getText().toString(), keyNotes, App.masterKey);
             finish();
         } catch (Exception e) {
             Snackbar.make(findViewById(R.id.root_new_entry),

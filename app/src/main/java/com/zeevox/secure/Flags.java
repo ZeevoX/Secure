@@ -22,4 +22,5 @@ public class Flags {
     public static final String CLEAR_DATABASE = "delete_database";
     public static final String ENABLE_APPLICATION_UNLOCK = "application_unlock";
     public static final String ENCRYPTION_ALGORITHM = "encryption_algorithm";
+    public static final float DIALOG_BACKGROUND_DIM = 0.3f;
 }

@@ -16,8 +16,6 @@ package com.zeevox.secure.cryptography;
 
 import android.os.Environment;
 
-import com.zeevox.secure.recycler.CustomAdapter;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -40,10 +38,10 @@ public class Entries {
     // for xml
     private static final String FILENAME = "secure.xml";
 
-    private File data;
+    private final File data;
     private DocumentBuilder documentBuilder;
 
-    private ArrayList<Entry> entries = new ArrayList<>();
+    private final ArrayList<Entry> entries = new ArrayList<>();
 
     Entries() throws Exception {
         data = new File(Environment.getExternalStorageDirectory(), FILENAME);
@@ -58,11 +56,11 @@ public class Entries {
         return a.key.compareToIgnoreCase(b.key) <= 0;
     }
 
-    public ArrayList<Entry> getEntries() throws Exception {
+    public ArrayList<Entry> getEntries() {
         return entries;
     }
 
-    public Entry getEntryAt(int ind) throws Exception {
+    public Entry getEntryAt(int ind) {
         return entries.get(ind);
     }
 

@@ -18,22 +18,22 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 
 import com.zeevox.secure.App;
 import com.zeevox.secure.R;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 @SuppressLint("Registered")
 public class SecureAppCompatActivity extends AppCompatActivity {
 
-    public static int activities_num = 0;
-    boolean shouldExecuteOnResume;
+    private static int activities_num = 0;
+    private boolean shouldExecuteOnResume;
 
-    public boolean passwordProtect() {
+    protected boolean passwordProtect() {
         return false;
     }
 

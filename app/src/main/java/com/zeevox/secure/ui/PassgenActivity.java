@@ -14,9 +14,6 @@
 
 package com.zeevox.secure.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -28,12 +25,18 @@ import com.zeevox.secure.core.SecureAppCompatActivity;
 
 import java.security.NoSuchAlgorithmException;
 
+import androidx.appcompat.widget.Toolbar;
+
 public class PassgenActivity extends SecureAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passgen);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TextView tv = findViewById(R.id.test_textview);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

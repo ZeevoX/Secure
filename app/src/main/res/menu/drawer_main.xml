@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (C) 2018 Timothy "ZeevoX" Langer
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -13,19 +14,35 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/nav_group_destinations"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_home"
             android:checked="true"
-            android:title="Home" />
+            android:icon="@drawable/ic_home"
+            android:title="@string/nav_dest_home" />
         <item
             android:id="@+id/nav_passgen"
             android:icon="@drawable/ic_key"
-            android:title="Generate password" />
+            android:title="@string/nav_dest_passgen" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
-            android:title="Settings" />
+            android:title="@string/nav_dest_settings" />
+    </group>
+    <group
+        android:id="@+id/nav_group_customer"
+        android:checkableBehavior="none"
+        android:enabled="false">
+        <item
+            android:id="@+id/nav_help"
+            android:title="@string/nav_dest_help" />
+        <item
+            android:id="@+id/nav_send_feedback"
+            android:title="@string/nav_dest_send_feedback" />
+        <item
+            android:id="@+id/nav_tos"
+            android:title="@string/nav_dest_tos" />
     </group>
 </menu>

@@ -14,8 +14,6 @@
 
 package com.zeevox.secure.cryptography;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.zeevox.secure.util.LogUtils;
@@ -24,6 +22,9 @@ import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.BadPaddingException;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Crypto {
     /**
@@ -48,7 +49,6 @@ public class Crypto {
      * attempting to decrypt a random entry in the user's password database and
      * returns true if successful. Note that we rely on the BadPaddingException
      * to return an e if the password supplied is incorrect.
-     * // TODO Replace master password verification method with something better instead of relying on an e to occur.
      *
      * @param masterPass The user-supplied master password that we will be checking.
      *                   This is entered in MainActivity.showMasterDialog

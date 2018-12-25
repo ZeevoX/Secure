@@ -39,20 +39,17 @@ public class TestActivity extends SecureAppCompatActivity {
         final TextView originaltx = findViewById(R.id.test_original);
         final TextView cipheredtx = findViewById(R.id.test_ciphered);
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                originaltx.setText(entry_edit.getText().toString());
-                try {
-                    String entry_pass = entry_edit.getText().toString();
-                    char[] master_pass = mpass_edit.getText().toString().toCharArray();
-                    String output = StringUtils.toHex(Encryptor.encrypt(entry_pass, master_pass));
-                    cipheredtx.setText(output);
-                    Log.e("TestActivity", output);
-                } catch (Exception e) {
-                    cipheredtx.setText("ERROR");
-                    e.printStackTrace();
-                }
+        submitButton.setOnClickListener(view -> {
+            originaltx.setText(entry_edit.getText().toString());
+            try {
+                String entry_pass = entry_edit.getText().toString();
+                char[] master_pass = mpass_edit.getText().toString().toCharArray();
+                String output = StringUtils.toHex(Encryptor.encrypt(entry_pass, master_pass));
+                cipheredtx.setText(output);
+                Log.e("TestActivity", output);
+            } catch (Exception e) {
+                cipheredtx.setText("ERROR");
+                e.printStackTrace();
             }
         });
     }

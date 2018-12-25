@@ -19,11 +19,17 @@ import android.os.Bundle;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 
+import androidx.appcompat.widget.Toolbar;
+
 public class SettingsActivity extends SecureAppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Inflate layout
         setContentView(R.layout.activity_settings);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

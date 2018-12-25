@@ -272,3 +272,5 @@ cmake-build-debug/
 
 
 # End of https://www.gitignore.io/api/eclipse,android,intellij,androidstudio
+
+archive/

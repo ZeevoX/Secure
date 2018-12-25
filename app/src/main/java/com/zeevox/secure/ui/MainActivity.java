@@ -15,30 +15,27 @@
 package com.zeevox.secure.ui;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.zeevox.secure.App;
 import com.zeevox.secure.BuildConfig;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
@@ -46,6 +43,7 @@ import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.recycler.CustomAdapter;
+import com.zeevox.secure.ui.dialog.CustomDimDialog;
 import com.zeevox.secure.util.LogUtils;
 
 import java.util.Arrays;
@@ -53,8 +51,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -62,20 +59,18 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.zeevox.secure.App.masterKey;
+
 public class MainActivity extends SecureAppCompatActivity {
 
-    public static final int[] attempts = {0};
     private static final int DATASET_COUNT = 60;
-    public static String masterKey = null;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private String[] mDataSet;
     private LinearLayoutManager mLayoutManager;
-    private boolean wasNewUser = false;
     private boolean displayingDialog = false;
-    private boolean mttpshown = false;
 
-    public static String generateRandomWord() {
+    private static String generateRandomWord() {
         Random random = new Random();
         char[] word = new char[random.nextInt(8) + 3]; // words of length 3 through 10. (1 and 2 letter words are boring.)
         for (int j = 0; j < word.length; j++) {
@@ -97,9 +92,6 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Inflate the layout
         setContentView(R.layout.activity_main);
-
-        // Set the toolbar having inflated layout
-        //setSupportActionBar((Toolbar) findViewById(R.id.toolbar_main));
 
         // Find the RecyclerView in the layout
         mRecyclerView = findViewById(R.id.recycler_view);
@@ -138,15 +130,9 @@ public class MainActivity extends SecureAppCompatActivity {
         // https://developer.android.com/guide/topics/ui/menus.html#context-menu
         registerForContextMenu(mRecyclerView);
 
-        // Hide bottom navigation bar when scrolling
-        final BottomAppBar mBottomAppBar = findViewById(R.id.bottom_app_bar);
-        //setSupportActionBar(mBottomAppBar);
-
         final Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
         setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         final DrawerLayout mDrawerLayout = findViewById(R.id.drawer_layout);
         toolbar.setNavigationOnClickListener(v -> {
@@ -157,8 +143,6 @@ public class MainActivity extends SecureAppCompatActivity {
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
-                    // set item as selected to persist highlight
-                    menuItem.setChecked(true);
                     // close drawer when item is tapped
                     mDrawerLayout.closeDrawers();
 
@@ -178,7 +162,7 @@ public class MainActivity extends SecureAppCompatActivity {
         navHeaderAppVersionText.setText(String.format(getString(R.string.nav_header_app_version), BuildConfig.VERSION_NAME));
     }
 
-    public void setupRecycler() {
+    private void setupRecycler() {
         // Initialize dataset, this data would usually come
         // from a local content provider or remote server.
         try {
@@ -268,7 +252,13 @@ public class MainActivity extends SecureAppCompatActivity {
         }
         // If there's nothing in the password database, help the user get started
         if (mDataSet.length == 0 && Crypto.isNewUser() && !displayingDialog) {
-            showIntroMTTP();
+            // Create the intent
+            Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+            // Send the master key to the new entry activity too
+            newActivityIntent.putExtra("MASTER_KEY", masterKey);
+            newActivityIntent.putExtra("display_back_button", false);
+            // Start the EditEntryActivity
+            startActivity(newActivityIntent);
         }
     }
 
@@ -294,20 +284,9 @@ public class MainActivity extends SecureAppCompatActivity {
             e.printStackTrace();
         }
 
-        // Create a dialog requesting the master password
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        // Prepare the layout
-        LayoutInflater inflater = getLayoutInflater();
-
-        // Create a null parent since there really is no parent - this is a dialog!
-        final ViewGroup nullParent = null;
-
-        // Create the layout
-        final View alertLayout = inflater.inflate(R.layout.dialog_master_key, nullParent, false);
-
-        // Inflate the layout
-        builder.setView(alertLayout);
+        CustomDimDialog customDimDialog = new CustomDimDialog();
+        AppCompatDialog dialog = customDimDialog.dialog(this, R.layout.dialog_master_key, false);
+        View alertLayout = customDimDialog.getAlertLayout();
 
         // Find the input field
         final TextInputEditText masterKeyInput = alertLayout.findViewById(R.id.dialog_master_password_input);
@@ -319,102 +298,73 @@ public class MainActivity extends SecureAppCompatActivity {
             imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
         }
 
-        // Set up the positive "OK" action button
-        builder.setPositiveButton(R.string.action_ok, null);
+        // Handle clicks on the "OK" button
+        alertLayout.findViewById(R.id.dialog_master_key_button_ok).setOnClickListener(view -> {
+            try {
+                Crypto.init();
+                masterKey = masterKeyInput.getText().toString();
+                // Verify that the password is correct
+                if (Crypto.verifyMasterPass(masterKey)) {
+                    // Dismiss the dialog
+                    dialog.dismiss();
+                    displayingDialog = false;
+                    // Reset attempts count
+                    App.attempts[0] = 0;
+                    // Create the intent
+                    Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+                    // Send the master key to the new entry activity too
+                    newActivityIntent.putExtra("MASTER_KEY", masterKey);
+                    // Start the EditEntryActivity
+                    startActivity(newActivityIntent);
+                } else {
+                    // Wrong password, show the dialog again with an e.
+                    final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
+                    masterKeyLayout.setErrorEnabled(true);
+                    masterKeyLayout.setError(getString(R.string.error_wrong_master_pass));
+                    masterKeyInput.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
 
-        // Set up the negative "CANCEL" action button
-        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            masterKeyLayout.setErrorEnabled(false);
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                        }
+                    });
+                    App.attempts[0] = App.attempts[0] + 1;
+                    // If more than three wrong attempts have been made, block the user.
+                    if (App.attempts[0] >= Flags.MAX_ATTEMPTS) {
+                        // Show an e as a toast message
+                        Toast.makeText(MainActivity.this, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
+                        // Close ALL running activities of this app
+                        finishAffinity();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                dialog.dismiss();
                 displayingDialog = false;
-                dialog.cancel();
+                showErrorSnackBar();
             }
         });
 
-        // Disable dismissing on back button or touch outside
-        setFinishOnTouchOutside(false);
-        builder.setCancelable(false);
-
-        // Finalize the dialog
-        final AlertDialog dialog = builder.create();
+        // Handle clicks on the "Cancel" button
+        alertLayout.findViewById(R.id.dialog_master_key_button_cancel).setOnClickListener(view -> dialog.dismiss());
 
         // Show the dialog
         dialog.show();
-
-        // Overriding the handler immediately after show
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    Crypto.init();
-                    masterKey = masterKeyInput.getText().toString();
-                    // Verify that the password is correct
-                    if (Crypto.verifyMasterPass(masterKey)) {
-                        // Dismiss the dialog
-                        dialog.dismiss();
-                        displayingDialog = false;
-                        // Reset attempts count
-                        attempts[0] = 0;
-                        // Create the intent
-                        Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-                        // Send the master key to the new entry activity too
-                        newActivityIntent.putExtra("MASTER_KEY", masterKey);
-                        // Start the EditEntryActivity
-                        startActivity(newActivityIntent);
-                    } else {
-                        // Wrong password, show the dialog again with an e.
-                        final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
-                        masterKeyLayout.setErrorEnabled(true);
-                        masterKeyLayout.setError(getString(R.string.error_wrong_master_pass));
-                        masterKeyInput.addTextChangedListener(new TextWatcher() {
-                            @Override
-                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                            }
-
-                            @Override
-                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                masterKeyLayout.setErrorEnabled(false);
-                            }
-
-                            @Override
-                            public void afterTextChanged(Editable s) {
-                            }
-                        });
-                        attempts[0] = attempts[0] + 1;
-                        // If more than three wrong attempts have been made, block the user.
-                        if (attempts[0] >= Flags.MAX_ATTEMPTS) {
-                            // Show an e as a toast message
-                            Toast.makeText(MainActivity.this, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
-                            // Close ALL running activities of this app
-                            finishAffinity();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    dialog.dismiss();
-                    displayingDialog = false;
-                    showErrorSnackBar();
-                }
-            }
-        });
     }
 
     private void newMasterDialog() {
         displayingDialog = true;
-        // Create a dialog requesting the master password
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        // Prepare the layout
-        LayoutInflater inflater = getLayoutInflater();
-
-        // Create a null parent since there really is no parent - this is a dialog!
-        final ViewGroup nullParent = null;
-
-        // Create the layout
-        final View alertLayout = inflater.inflate(R.layout.dialog_new_master_key, nullParent, false);
-
-        // Inflate the layout
-        builder.setView(alertLayout);
+        CustomDimDialog customDimDialog = new CustomDimDialog();
+        AppCompatDialog dialog = customDimDialog.dialog(this, R.layout.dialog_new_master_key, false);
+        View alertLayout = customDimDialog.getAlertLayout();
 
         // Find the input field
         final TextInputEditText masterKeyInput = alertLayout.findViewById(R.id.dialog_new_master_password_input);
@@ -427,78 +377,51 @@ public class MainActivity extends SecureAppCompatActivity {
             imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
         }
 
-        // Set up the positive "OK" action button
-        builder.setPositiveButton(R.string.action_ok, null);
+        alertLayout.findViewById(R.id.dialog_new_master_key_button_ok).setOnClickListener(view -> {
+            if (Objects.equals(masterKeyInput.getText().toString(), masterKeyRepeat.getText().toString())) {
+                // Save the master key that was entered
+                masterKey = masterKeyInput.getText().toString();
+                // Dismiss the dialog
+                dialog.dismiss();
+                displayingDialog = false;
+                // Create the intent
+                Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+                // Send the master key to the new entry activity too
+                newActivityIntent.putExtra("MASTER_KEY", masterKey);
+                newActivityIntent.putExtra("display_back_button", false);
+                // Start the EditEntryActivity
+                startActivity(newActivityIntent);
+            } else {
+                final TextInputLayout masterRepeatLayout = alertLayout.findViewById(R.id.dialog_repeat_master_password_layout);
+                masterRepeatLayout.setErrorEnabled(true);
+                masterRepeatLayout.setError("The two passwords you entered do not match.");
+                masterKeyRepeat.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
 
-        // Set up the negative "CANCEL" action button
-        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        masterRepeatLayout.setErrorEnabled(false);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                    }
+                });
             }
         });
-
-        // Disable dismissing on back button or touch outside
-        setFinishOnTouchOutside(false);
-        builder.setCancelable(false);
-
-        // Finalize the dialog
-        final AlertDialog dialog = builder.create();
 
         // Show the dialog
         dialog.show();
-
-        // Overriding the handler immediately after show
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.equals(masterKeyInput.getText().toString(), masterKeyRepeat.getText().toString())) {
-                    // Save the master key that was entered
-                    masterKey = masterKeyInput.getText().toString();
-                    // Dismiss the dialog
-                    dialog.dismiss();
-                    displayingDialog = false;
-                    wasNewUser = true;
-                    // Help the user get started
-                    showIntroMTTP();
-                } else {
-                    final TextInputLayout masterRepeatLayout = alertLayout.findViewById(R.id.dialog_repeat_master_password_layout);
-                    masterRepeatLayout.setErrorEnabled(true);
-                    masterRepeatLayout.setError("The two passwords you entered do not match.");
-                    masterKeyRepeat.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            masterRepeatLayout.setErrorEnabled(false);
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable s) {
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onBackPressed() {
-
-        super.onBackPressed();
     }
 
     private void showErrorSnackBar() {
         Snackbar.make(findViewById(R.id.root_main), R.string.error_occurred_miscellaneous, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.google_blue_300, getTheme()))
-                .setAction("RESTART APP", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                        startActivity(getIntent());
-                    }
+                .setActionTextColor(getResources().getColor(R.color.secure_accent, getTheme()))
+                .setAction("RESTART APP", v -> {
+                    finish();
+                    startActivity(getIntent());
                 }).show();
     }
 
@@ -512,7 +435,6 @@ public class MainActivity extends SecureAppCompatActivity {
             e.printStackTrace();
         }
         if (!Crypto.isNewUser()) {
-            wasNewUser = false;
             setupRecycler();
         }
     }
@@ -527,49 +449,17 @@ public class MainActivity extends SecureAppCompatActivity {
      * {@link #onResumeFragments()}.
      */
     @Override
-    protected void onResume() {
+    public void onResume() {
         LogUtils.d(getClass().getSimpleName(), "onResume called");
         super.onResume();
     }
 
-    public void refreshRecyclerView() {
+    public static void refreshRecyclerView(int index) {
         try {
-            mRecyclerView.getAdapter().notifyDataSetChanged();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void showIntroMTTP() {
-        // Create the intent
-        Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-        // Send the master key to the new entry activity too
-        newActivityIntent.putExtra("MASTER_KEY", masterKey);
-        // Start the EditEntryActivity
-        startActivity(newActivityIntent);
-        /*new MaterialTapTargetPrompt.Builder(MainActivity.this)
-                .setTarget(findViewById(R.id.main_fab))
-                .setPrimaryText("Add a password to your database")
-                .setSecondaryText("Get started by adding an entry to your password list")
-                .setBackgroundColour(getResources().getColor(R.color.colorAccent, getTheme()))
-                .setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
-                    @Override
-                    public void onPromptStateChanged(MaterialTapTargetPrompt prompt, int state) {
-                        if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
-                            // User has pressed the prompt target
-                            prompt.dismiss();
-                            // Create the intent
-                            Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-                            // Send the master key to the new entry activity too
-                            newActivityIntent.putExtra("MASTER_KEY", masterKey);
-                            // Start the EditEntryActivity
-                            startActivity(newActivityIntent);
-                            mttpshown = true;
-                        } else if (state == MaterialTapTargetPrompt.STATE_DISMISSED && !mttpshown) {
-                            showIntroMTTP();
-                        }
-                    }
-                })
-                .show();*/
-    }
 }

@@ -161,18 +161,15 @@ public class PermissionUtils {
 
             return new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.permission_storage_rationale)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // After click on Ok, request the permission.
-                            ActivityCompat.requestPermissions(getActivity(),
-                                    new String[]{
-                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    requestCode);
-                            // Do not finish the Activity while requesting permission.
-                            mFinishActivity = false;
-                        }
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        // After click on Ok, request the permission.
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                        Manifest.permission.READ_EXTERNAL_STORAGE},
+                                requestCode);
+                        // Do not finish the Activity while requesting permission.
+                        mFinishActivity = false;
                     })
                     .setNegativeButton(android.R.string.cancel, null)
                     .create();

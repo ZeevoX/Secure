@@ -38,6 +38,12 @@ import androidx.core.content.ContextCompat;
 
 public class App extends SecureAppCompatActivity {
 
+    // Total number of attempts in the application
+    public static final int[] attempts = {0};
+
+    // MasterKey in memory
+    public static String masterKey = null;
+
     // Generate a unique number each time
     private static final int CREDENTIALS_RESULT = new Random().nextInt(10000) + 1;
 

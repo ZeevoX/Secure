@@ -23,19 +23,21 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import androidx.annotation.NonNull;
+
 public class Entry {
 
     final public String key;
     final public String name, pass, notes; // name and pass are stored encrypted
 
-    public Entry(String k, String n, String p) throws Exception {
+    public Entry(String k, String n, String p) {
         key = k;
         name = n;
         pass = p;
         notes = null;
     }
 
-    public Entry(String k, String n, String p, String t) throws Exception {
+    public Entry(String k, String n, String p, String t) {
         key = k;
         name = n;
         pass = p;
@@ -74,6 +76,7 @@ public class Entry {
         notes = t;
     }
 
+    @NonNull
     public String toString() {
         return key;
     }

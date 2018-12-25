@@ -14,22 +14,25 @@
 
 package com.zeevox.secure.settings;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import android.view.View;
+import android.widget.ListView;
 
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.cryptography.Crypto;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+
         try {
             Crypto.init();
         } catch (Exception e) {
@@ -38,29 +41,29 @@ public class SettingsFragment extends PreferenceFragment {
         Preference deleteDbPreference = findPreference(Flags.CLEAR_DATABASE);
 
         deleteDbPreference.setEnabled(Crypto.getFile().exists());
-        deleteDbPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                alertDialog.setTitle("Delete database?");
-                alertDialog.setMessage("This will delete ALL passwords in the database, permanently. There is no way back after this! Are you sure you want to continue?");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "DELETE", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Crypto.getFile().delete();
-                        preference.setEnabled(false);
-                        dialog.dismiss();
-                    }
-                });
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                alertDialog.show();
-                return true;
-            }
+        deleteDbPreference.setOnPreferenceClickListener(preference -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+            alertDialog.setTitle("Delete database?");
+            alertDialog.setMessage("This will delete ALL passwords in the database, permanently. There is no way back after this! Are you sure you want to continue?");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "DELETE", (dialog, which) -> {
+                Crypto.getFile().delete();
+                preference.setEnabled(false);
+                dialog.dismiss();
+            });
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "CANCEL", (dialog, which) -> dialog.dismiss());
+            alertDialog.show();
+            return true;
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Hide divider line between preferences
+        View rootView = getView();
+        if (rootView != null) {
+            ListView list = rootView.findViewById(android.R.id.list);
+            list.setDivider(null);
+        }
     }
 }
