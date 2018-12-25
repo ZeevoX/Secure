@@ -38,6 +38,9 @@
     <string name="input_hint_password">Password</string>
     <string name="input_hint_username">Username</string>
 
+    <string name="notification_channel_autobackup_description">Be notified when your passwords have been either uploaded or restored from the cloud.</string>
+    <string name="notification_channel_autobackup_title">Auto-backup</string>
+
     <string name="permission_storage_denied">This app requires the storage permission to access your password database. Please try again and grant access to your internal storage.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Secure\'.</string>
     <string name="permission_storage_rationale">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="permission_storage_required_toast">The storage permission is required for this app.</string>

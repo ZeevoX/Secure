@@ -131,7 +131,7 @@ public class App extends SecureAppCompatActivity {
     private void unlock() {
         // Ask for user fingerprint / password if this option is enabled in preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (preferences.getBoolean(Flags.ENABLE_APPLICATION_UNLOCK, true)) {
+        if (preferences.getBoolean(Flags.ENABLE_APPLICATION_UNLOCK, false)) {
             checkCredentials();
         } else {
             startActivity(new Intent(App.this, MainActivity.class));

@@ -14,7 +14,6 @@
 
 package com.zeevox.secure.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -285,7 +283,7 @@ public class MainActivity extends SecureAppCompatActivity {
         }
 
         CustomDimDialog customDimDialog = new CustomDimDialog();
-        AppCompatDialog dialog = customDimDialog.dialog(this, R.layout.dialog_master_key, false);
+        AppCompatDialog dialog = customDimDialog.dialog(this, R.layout.dialog_master_key, true);
         View alertLayout = customDimDialog.getAlertLayout();
 
         // Find the input field
@@ -293,10 +291,10 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Show the keyboard
         masterKeyInput.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        /*InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
-        }
+        }*/
 
         // Handle clicks on the "OK" button
         alertLayout.findViewById(R.id.dialog_master_key_button_ok).setOnClickListener(view -> {
@@ -371,11 +369,11 @@ public class MainActivity extends SecureAppCompatActivity {
         final TextInputEditText masterKeyRepeat = alertLayout.findViewById(R.id.dialog_repeat_master_password_input);
 
         // Show the keyboard
-        masterKeyInput.requestFocus();
+        /*masterKeyInput.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
-        }
+        }*/
 
         alertLayout.findViewById(R.id.dialog_new_master_key_button_ok).setOnClickListener(view -> {
             if (Objects.equals(masterKeyInput.getText().toString(), masterKeyRepeat.getText().toString())) {
