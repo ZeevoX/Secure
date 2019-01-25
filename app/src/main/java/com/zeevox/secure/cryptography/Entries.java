@@ -14,7 +14,7 @@
 
 package com.zeevox.secure.cryptography;
 
-import android.os.Environment;
+import android.content.Context;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,15 +36,15 @@ import javax.xml.transform.stream.StreamResult;
 public class Entries {
 
     // for xml
-    private static final String FILENAME = "secure.xml";
+    public static final String FILENAME = "secure.xml";
 
     private final File data;
     private DocumentBuilder documentBuilder;
 
     private final ArrayList<Entry> entries = new ArrayList<>();
 
-    Entries() throws Exception {
-        data = new File(Environment.getExternalStorageDirectory(), FILENAME);
+    Entries(Context context) throws Exception {
+        data = new File(context.getFilesDir(), FILENAME);
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         if (!data.exists()) {
             save();

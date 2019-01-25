@@ -30,6 +30,7 @@ import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.util.PermissionUtils;
 
+import java.util.Objects;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -45,7 +46,7 @@ public class App extends SecureAppCompatActivity {
     public static String masterKey = null;
 
     // Generate a unique number each time
-    private static final int CREDENTIALS_RESULT = new Random().nextInt(10000) + 1;
+    public static final int CREDENTIALS_RESULT = new Random().nextInt(10000) + 1;
 
     // Identify the permissions request
     private static final int STORAGE_PERMISSION_REQUEST_CODE = 1;
@@ -67,43 +68,49 @@ public class App extends SecureAppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         }
 
-        // Check application required permissions
-        if (ContextCompat.checkSelfPermission(App.this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(App.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        unlock();
 
-
-            // Permission is not granted; request the permission
-            ActivityCompat.requestPermissions(App.this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    PERMISSIONS_REQUEST);
-
-            // PERMISSIONS_REQUEST is an app-defined int constant.
-            // The callback method gets the result of the request.
-
-        } else {
-            // Permission has already been granted
-            unlock();
-        }
+//        // Check application required permissions
+//        if (ContextCompat.checkSelfPermission(App.this,
+//                Manifest.permission.READ_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(App.this,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+//
+//            // Permission is not granted; request the permission
+//            ActivityCompat.requestPermissions(App.this,
+//                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                    PERMISSIONS_REQUEST);
+//
+//            // PERMISSIONS_REQUEST is an app-defined int constant.
+//            // The callback method gets the result of the request.
+//
+//        } else {
+//            // Permission has already been granted
+//            unlock();
+//        }
 
         //requestStoragePermission(STORAGE_PERMISSION_REQUEST_CODE);
     }
 
     private void checkCredentials() {
         KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
-        Intent credentialsIntent = null;
-        if (keyguardManager != null) {
-            credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
+
+        if (!keyguardManager.isKeyguardSecure()) {
+            // Show a message that the user hasn't set up a lock screen.
+            Toast.makeText(this,
+                    "Secure lock screen hasn't set up.\n"
+                            + "Go to 'Settings -> Security -> Screenlock' to set up a lock screen",
+                    Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
+
+        Intent credentialsIntent;
+        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
-        } else {
-            // User has no password, but we recommend to set one.
-            Toast.makeText(this, "Your device does not have a screen lock configured. It is recommended to set one.", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(App.this, MainActivity.class));
-            finish();
         }
     }
 
@@ -131,7 +138,7 @@ public class App extends SecureAppCompatActivity {
     private void unlock() {
         // Ask for user fingerprint / password if this option is enabled in preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (preferences.getBoolean(Flags.ENABLE_APPLICATION_UNLOCK, false)) {
+        if (Objects.equals(preferences.getString(Flags.SECURITY_LEVEL, "fingerprint"), "appfingerprint")) {
             checkCredentials();
         } else {
             startActivity(new Intent(App.this, MainActivity.class));

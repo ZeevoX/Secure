@@ -14,11 +14,18 @@
 
 package com.zeevox.secure.ui;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,16 +48,27 @@ import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.recycler.CustomAdapter;
+import com.zeevox.secure.settings.SettingsActivity;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
 import com.zeevox.secure.util.LogUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -59,9 +77,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static com.zeevox.secure.App.masterKey;
 
-public class MainActivity extends SecureAppCompatActivity {
+public class MainActivity extends SecureAppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final int DATASET_COUNT = 60;
+    // Identify the permissions request
+    private static final int PERMISSIONS_REQUEST = 2302;
+    private static final int READ_REQUEST_CODE = 7436;
+    CoordinatorLayout layout;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private String[] mDataSet;
@@ -77,6 +99,14 @@ public class MainActivity extends SecureAppCompatActivity {
         return new String(word);
     }
 
+    public static void refreshRecyclerView(int index) {
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public boolean passwordProtect() {
         return true;
@@ -90,6 +120,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Inflate the layout
         setContentView(R.layout.activity_main);
+        layout = findViewById(R.id.root_main);
 
         // Find the RecyclerView in the layout
         mRecyclerView = findViewById(R.id.recycler_view);
@@ -106,7 +137,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Initialise Crypto
         try {
-            Crypto.init();
+            Crypto.init(MainActivity.this);
             if (Crypto.isNewUser()) {
                 LogUtils.d(getClass().getSimpleName(), "New user!");
                 newMasterDialog();
@@ -148,6 +179,15 @@ public class MainActivity extends SecureAppCompatActivity {
                         case R.id.nav_passgen:
                             startActivity(new Intent(MainActivity.this, PassgenActivity.class));
                             break;
+                        case R.id.nav_settings:
+                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                            break;
+                        /*case R.id.nav_backup_and_restore:
+                            startActivity(new Intent(MainActivity.this, BackupRestoreActivity.class));
+                            break;*/
+                        case R.id.nav_send_feedback:
+                            startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
+                            break;
                     }
 
                     // Add code here to update the UI based on the item selected
@@ -176,7 +216,7 @@ public class MainActivity extends SecureAppCompatActivity {
 
         // Add item separators
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
-        
+
         mRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
@@ -219,11 +259,11 @@ public class MainActivity extends SecureAppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(this, com.zeevox.secure.settings.SettingsActivity.class));
-                break;
-        }
+//        switch (item.getItemId()) {
+//            case R.id.action_settings:
+//                startActivity(new Intent(this, com.zeevox.secure.settings.SettingsActivity.class));
+//                break;
+//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -232,7 +272,7 @@ public class MainActivity extends SecureAppCompatActivity {
      * from a local content provider or remote server.
      */
     private void initDataset() throws Exception {
-        Crypto.init();
+        Crypto.init(MainActivity.this);
 
         if (!Flags.SAMPLE_DATA) {
             int numberOfEntries = Crypto.getEntries().getEntries().size();
@@ -266,17 +306,30 @@ public class MainActivity extends SecureAppCompatActivity {
     private void showMasterDialog() {
         displayingDialog = true;
         try {
-            if (masterKey != null && Crypto.verifyMasterPass(masterKey) &&
-                    !PreferenceManager.getDefaultSharedPreferences(this)
-                            .getBoolean(Flags.ASK_MASTER_PASS_EACH_TIME, true)) {
-                // Create the intent
-                Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-                // Send the master key to the new entry activity too
-                newActivityIntent.putExtra("MASTER_KEY", masterKey);
-                // Start the EditEntryActivity
-                startActivity(newActivityIntent);
-                // Don't continue any further
-                return;
+            String securityLevel = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString(Flags.SECURITY_LEVEL, "fingerprint");
+            if (masterKey != null && Crypto.verifyMasterPass(masterKey) && !Objects.equals(securityLevel, "password")) {
+                assert securityLevel != null;
+                switch (securityLevel) {
+                    case "none":
+                    case "appfingerprint":
+                        // Create the intent
+                        Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+                        // Send the master key to the new entry activity too
+                        newActivityIntent.putExtra("MASTER_KEY", masterKey);
+                        // Start the EditEntryActivity
+                        startActivity(newActivityIntent);
+                        // Don't continue any further
+                        return;
+                    case "fingerprint":
+                        KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
+                        Intent credentialsIntent;
+                        assert keyguardManager != null;
+                        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
+                        assert credentialsIntent != null;
+                        startActivityForResult(credentialsIntent, 1042);
+                        return;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -299,7 +352,7 @@ public class MainActivity extends SecureAppCompatActivity {
         // Handle clicks on the "OK" button
         alertLayout.findViewById(R.id.dialog_master_key_button_ok).setOnClickListener(view -> {
             try {
-                Crypto.init();
+                Crypto.init(MainActivity.this);
                 masterKey = masterKeyInput.getText().toString();
                 // Verify that the password is correct
                 if (Crypto.verifyMasterPass(masterKey)) {
@@ -410,8 +463,106 @@ public class MainActivity extends SecureAppCompatActivity {
             }
         });
 
+        alertLayout.findViewById(R.id.dialog_new_master_key_button_neutral).setOnClickListener(v -> {
+            // Check application required permissions
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(MainActivity.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+
+                // Permission is not granted; request the permission
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST);
+
+                // PERMISSIONS_REQUEST is an app-defined int constant.
+                // The callback method gets the result of the request.
+            }
+
+            // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+            // browser.
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+            // Filter to only show results that can be "opened", such as a
+            // file (as opposed to a list of contacts or timezones)
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            // Filter to show only images, using the image MIME data type.
+            // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+            // To search for all documents available via installed storage providers,
+            // it would be "*/*".
+            intent.setType("text/xml");
+
+            startActivityForResult(intent, READ_REQUEST_CODE);
+            dialog.dismiss();
+        });
+
         // Show the dialog
         dialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
+        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
+        // response to some other intent, and the code below shouldn't run at all.
+
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using resultData.getData().
+            Uri uri;
+            if (resultData != null) {
+                uri = resultData.getData();
+                Log.i(getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
+                //File from = new File(uri.toString());
+                File destination = new File(getFilesDir(), Entries.FILENAME);
+                ContentResolver resolver = getContentResolver();
+                try {
+                    InputStream inputStream = resolver.openInputStream(uri);
+                    OutputStream outputStream = new FileOutputStream(destination);
+                    byte buffer[] = new byte[1024];
+                    int length;
+                    while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+
+                    outputStream.close();
+                    inputStream.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.i(getClass().getSimpleName(), "Importing passwords successful!");
+                Snackbar.make(layout, "Passwords successfully imported", Snackbar.LENGTH_SHORT).show();
+            }
+        }
+
+        if (requestCode == 1042) {
+            if (resultCode == RESULT_OK) {
+                        // Create the intent
+                Intent newActivityIntent = new Intent(this, EditEntryActivity.class);
+                newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                // Send the master key to the new entry activity too
+                newActivityIntent.putExtra("MASTER_KEY", masterKey);
+                // Start the EditEntryActivity
+                startActivity(newActivityIntent);
+            } else {
+                Toast.makeText(this, "Access denied, sorry.", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == 1043) {
+            if (resultCode == RESULT_OK) {
+
+            } else {
+                Toast.makeText(this, "Access denied, sorry.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showErrorSnackBar() {
@@ -428,7 +579,7 @@ public class MainActivity extends SecureAppCompatActivity {
         LogUtils.d(getClass().getSimpleName(), "onStart called");
         super.onStart();
         try {
-            Crypto.init();
+            Crypto.init(MainActivity.this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -452,12 +603,13 @@ public class MainActivity extends SecureAppCompatActivity {
         super.onResume();
     }
 
-    public static void refreshRecyclerView(int index) {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
     }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
 }

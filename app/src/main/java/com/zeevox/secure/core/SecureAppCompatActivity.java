@@ -15,13 +15,10 @@
 package com.zeevox.secure.core;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.WindowManager;
 
-import com.zeevox.secure.App;
 import com.zeevox.secure.R;
 
 import androidx.annotation.Nullable;
@@ -51,48 +48,48 @@ public class SecureAppCompatActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 
-    /* START Close the activity when exiting, don't just switch from it. */
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
-
-    /* *** */
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        finish();
-    }
-    /* END */
-
-    /* START Handle password protecting the app */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        activities_num++;
-        if (activities_num == 1) {
-            // User back in the application
-            Log.i(getClass().getSimpleName(), "User has returned to the application");
-            if (shouldExecuteOnResume && passwordProtect()) {
-                shouldExecuteOnResume = false;
-                startActivity(new Intent(this, App.class));
-                finish();
-            }
-        }
-    }
-
-    /* *** */
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        activities_num--;
-        if (activities_num == 0) {
-            // User not in the application
-            shouldExecuteOnResume = true;
-            Log.i(getClass().getSimpleName(), "User not longer in the application");
-        }
-    }
-    /* END */
+//    /* START Close the activity when exiting, don't just switch from it. */
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        finish();
+//    }
+//
+//    /* *** */
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        finish();
+//    }
+//    /* END */
+//
+//    /* START Handle password protecting the app */
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        activities_num++;
+//        if (activities_num == 1) {
+//            // User back in the application
+//            Log.i(getClass().getSimpleName(), "User has returned to the application");
+//            if (shouldExecuteOnResume && passwordProtect()) {
+//                shouldExecuteOnResume = false;
+//                startActivity(new Intent(this, App.class));
+//                finish();
+//            }
+//        }
+//    }
+//
+//    /* *** */
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        activities_num--;
+//        if (activities_num == 0) {
+//            // User not in the application
+//            shouldExecuteOnResume = true;
+//            Log.i(getClass().getSimpleName(), "User no longer in the application");
+//        }
+//    }
+//    /* END */
 }

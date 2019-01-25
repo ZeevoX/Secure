@@ -19,6 +19,6 @@
         path="." />
     <!-- Back up user password database -->
     <include
-        domain="external"
+        domain="sharedpref"
         path="secure.xml" />
 </full-backup-content>

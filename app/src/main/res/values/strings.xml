@@ -84,7 +84,7 @@
     <string name="new_fingerprint_enrolled_description">A new fingerprint was added to this device, so your password is required.</string>
     <string name="use_fingerprint_in_future">Use fingerprint in the future</string>
     <string name="use_fingerprint_to_authenticate_title">Use fingerprint to authenticate</string>
-    <string name="use_fingerprint_to_authenticate_key" >use_fingerprint_to_authenticate_key</string>
+    <string name="use_fingerprint_to_authenticate_key">use_fingerprint_to_authenticate_key</string>
     <string name="description_bugdroid_icon">Android bugdroid image</string>
     <string name="description_fingerprint_icon">Fingerprint icon</string>
     <string name="nav_dest_home">Home</string>
@@ -93,4 +93,44 @@
     <string name="nav_dest_help"><![CDATA[Help & FAQ]]></string>
     <string name="nav_dest_send_feedback">Send feedback</string>
     <string name="nav_dest_tos">Terms of Service</string>
+
+    <string name="action_send_feedback">Send feedback</string>
+    <string name="feedback_name_hint">Your name…</string>
+    <string name="feedback_email_hint">Your email address…</string>
+    <string name="feedback_hint_issue_title">Issue title</string>
+    <string name="feedback_hint_reproduction_steps">Reproduction steps</string>
+    <string name="feedback_hint_expected_result">Expected result</string>
+    <string name="feedback_hint_actual_result">Actual result</string>
+    <string name="feedback_error_empty">Please make sure you have not forgotten this field.</string>
+    <!-- DO NOT TRANSLATE THE PLACEHOLDERS! -->
+    <string name="feedback_prefill_content">
+        #### Reproduction steps\n\n
+        REPRODUCTION_STEPS\n\n
+        #### Expected Result\n\n
+        EXPECTED_RESULT\n\n
+        #### Actual Result\n\n
+        ACTUAL_RESULT\n\n
+        #### Device info\n\n
+         - Recorder build version: `secure_version_name`\n
+         - Device fingerprint: `device_fingerprint`\n\n\n\n
+    </string>
+    <string name="feedback_check_no_duplicate_title">I have verified there are no duplicate active or recent bugs, questions, or requests</string>
+    <string name="feedback_check_latest_version">I have verified that I am using the latest version of Secure</string>
+    <string name="feedback_check_generic_title">I have given my issue a non-generic title</string>
+    <string name="feedback_check_device_info">I agree that by pressing the "Send feedback" button, Secure will collect some non-identifiable device information such as device name and Android version</string>
+
+    <string-array name="security_level_entries">
+        <item>none</item>
+        <item>appfingerprint</item>
+        <item>fingerprint</item>
+        <item>password</item>
+    </string-array>
+
+    <string-array name="security_level_titles">
+        <item>None</item>
+        <item>Unlock application with fingerprint</item>
+        <item>Ask for fingerprint every time (recommended)</item>
+        <item>Ask for master password every time</item>
+    </string-array>
+
 </resources>

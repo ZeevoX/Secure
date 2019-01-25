@@ -14,6 +14,7 @@
 
 package com.zeevox.secure.recycler;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
@@ -112,6 +113,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             return mDataSet.length;
         }
     }
+
 
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
@@ -226,12 +228,22 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
          */
         private void showMasterDialog(final int command, final int adapterPosition) {
             try {
-                Crypto.init();
-                if (App.masterKey != null && Crypto.verifyMasterPass(App.masterKey) &&
-                        !PreferenceManager.getDefaultSharedPreferences(activity)
-                                .getBoolean(Flags.ASK_MASTER_PASS_EACH_TIME, true)) {
-                    // Don't continue any further
-                    processMdgCommand(command, adapterPosition);
+                Crypto.init(activity);
+                String securityLevel = PreferenceManager.getDefaultSharedPreferences(activity)
+                        .getString(Flags.SECURITY_LEVEL, "fingerprint");
+                if (App.masterKey != null && Crypto.verifyMasterPass(App.masterKey)
+                        && !Objects.equals(securityLevel, "password")) {
+                    if (!Objects.equals(securityLevel, "fingerprint") || true) {
+                        // Don't continue any further
+                        processMdgCommand(command, adapterPosition);
+                    } else {
+                        KeyguardManager keyguardManager = activity.getSystemService(KeyguardManager.class);
+                        Intent credentialsIntent;
+                        assert keyguardManager != null;
+                        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
+                        assert credentialsIntent != null;
+                        activity.startActivityForResult(credentialsIntent, 1043);
+                    }
                     return;
                 }
             } catch (Exception e) {
@@ -255,7 +267,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             // Handle clicks on the "OK" button
             alertLayout.findViewById(R.id.dialog_master_key_button_ok).setOnClickListener(view -> {
                 try {
-                    Crypto.init();
+                    Crypto.init(activity);
                     App.masterKey = Objects.requireNonNull(masterKeyInput.getText()).toString();
                     // Verify that the password is correct
                     if (Crypto.verifyMasterPass(App.masterKey)) {

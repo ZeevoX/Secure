@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2018 Timothy "ZeevoX" Langer
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -14,11 +13,10 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.zeevox.secure.ui.PassgenActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -32,12 +30,15 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
+        android:id="@+id/test_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_margin"
-        android:textSize="24sp"
+        android:clickable="true"
+        android:focusable="true"
         android:fontFamily="monospace"
+        android:longClickable="true"
         android:text="Something not working?"
-        android:id="@+id/test_textview" />
+        android:textSize="24sp" />
 
 </LinearLayout>

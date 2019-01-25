@@ -18,9 +18,10 @@ package com.zeevox.secure;
 public class Flags {
     public static final boolean SAMPLE_DATA = false;
     public static final int MAX_ATTEMPTS = 3;
-    public static final String ASK_MASTER_PASS_EACH_TIME = "master_pass_each_time";
+//    public static final String ASK_MASTER_PASS_EACH_TIME = "master_pass_each_time";
     public static final String CLEAR_DATABASE = "delete_database";
-    public static final String ENABLE_APPLICATION_UNLOCK = "application_unlock";
+//    public static final String ENABLE_APPLICATION_UNLOCK = "application_unlock";
+    public static final String SECURITY_LEVEL = "security_level";
     public static final String ENCRYPTION_ALGORITHM = "encryption_algorithm";
     public static final float DIALOG_BACKGROUND_DIM = 0.3f;
 }

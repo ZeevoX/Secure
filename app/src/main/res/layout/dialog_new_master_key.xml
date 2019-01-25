@@ -94,6 +94,17 @@
         android:orientation="horizontal">
 
         <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_new_master_key_button_neutral"
+            style="@style/Widget.Secure.BorderlessButton"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="@dimen/margin_normal"
+            android:text="IMPORT PASSWORDS"/>
+
+        <Button
             android:id="@+id/dialog_new_master_key_button_ok"
             style="@style/Widget.Secure.RaisedButton"
             android:layout_width="wrap_content"

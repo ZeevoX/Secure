@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class CustomBackupAgent extends BackupAgentHelper {
+
     @Override
     public void onRestoreFinished() {
         super.onRestoreFinished();

@@ -154,7 +154,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
 
     private void addEntryComplete() {
         try {
-            Crypto.init();
+            Crypto.init(EditEntryActivity.this);
             if (entryName != null && adapterPosition != -1) {
                 Crypto.getEntries().removeEntryAt(adapterPosition);
             }

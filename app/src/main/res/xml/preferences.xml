@@ -16,17 +16,29 @@
 
     <PreferenceCategory android:title="General">
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="application_unlock"
-            android:summary="Unlock the application with your password or fingerprint."
-            android:title="Enable application unlock" />
+        <!--<SwitchPreference-->
+            <!--android:defaultValue="false"-->
+            <!--android:key="application_unlock"-->
+            <!--android:summary="Unlock the application with your password or fingerprint."-->
+            <!--android:title="Enable application unlock" />-->
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="master_pass_each_time"
-            android:summary="@string/pref_master_pass_each_time_desc"
-            android:title="@string/pref_master_pass_each_time_title" />
+        <ListPreference
+            android:defaultValue="fingerprint"
+            android:entries="@array/security_level_titles"
+            android:entryValues="@array/security_level_entries"
+            android:key="security_level"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="%s"
+            android:title="Security level" />
+
+        <Preference android:summary="NOTE: The application will ask for the master password each time you open the application afresh." />
+
+        <!--<SwitchPreference-->
+        <!--android:defaultValue="true"-->
+        <!--android:key="master_pass_each_time"-->
+        <!--android:summary="@string/pref_master_pass_each_time_desc"-->
+        <!--android:title="@string/pref_master_pass_each_time_title" />-->
 
     </PreferenceCategory>
 

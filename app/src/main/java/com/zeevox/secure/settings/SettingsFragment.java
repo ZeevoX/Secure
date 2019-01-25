@@ -34,7 +34,7 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
         try {
-            Crypto.init();
+            Crypto.init(getActivity());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -14,6 +14,7 @@
 
 package com.zeevox.secure.cryptography;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.zeevox.secure.util.LogUtils;
@@ -40,8 +41,8 @@ public class Crypto {
      * Initialise Crypto
      * @throws Exception since Entries() throws an Exception too
      */
-    public static void init() throws Exception {
-        mEntries = new Entries();
+    public static void init(Context context) throws Exception {
+        mEntries = new Entries(context);
     }
 
     /**
