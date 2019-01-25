@@ -40,8 +40,8 @@ android {
         applicationId "com.zeevox.secure"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 4
-        versionName "0.3.1"
+        versionCode 5
+        versionName "0.4 beta"
 
         android.applicationVariants.all { variant ->
             variant.outputs.all {
