@@ -74,6 +74,10 @@
 
     <PreferenceCategory android:title="Danger zone">
         <Preference
+            android:title="Export passwords"
+            android:summary="Save your passwords as an XML file"
+            android:key="export_passwords" />
+        <Preference
             android:key="delete_database"
             android:summary="Delete ALL saved passwords in the database."
             android:title="Clear database" />

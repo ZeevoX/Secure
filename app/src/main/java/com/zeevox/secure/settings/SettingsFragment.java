@@ -14,15 +14,29 @@
 
 package com.zeevox.secure.settings;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.cryptography.Crypto;
+import com.zeevox.secure.cryptography.Entries;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -38,6 +52,34 @@ public class SettingsFragment extends PreferenceFragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Preference exportPasswordsPreference = findPreference(Flags.EXPORT_PASSWORDS);
+        exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
+            Uri uri = Uri.fromFile(new File(getActivity().getFilesDir(), Entries.FILENAME));
+            Log.i(getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
+            File destination = new File(Environment.getExternalStorageDirectory(),  Entries.FILENAME);
+            ContentResolver resolver = getActivity().getContentResolver();
+            try {
+                InputStream inputStream = resolver.openInputStream(uri);
+                OutputStream outputStream = new FileOutputStream(destination);
+                byte buffer[] = new byte[1024];
+                int length;
+                while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.close();
+                inputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.i(getClass().getSimpleName(), "Exporting passwords successful!");
+            Snackbar.make(Objects.requireNonNull(getView()), "Passwords successfully exported to " + destination.toString(), Snackbar.LENGTH_LONG).show();
+
+            return true;
+        });
+
         Preference deleteDbPreference = findPreference(Flags.CLEAR_DATABASE);
 
         deleteDbPreference.setEnabled(Crypto.getFile().exists());
