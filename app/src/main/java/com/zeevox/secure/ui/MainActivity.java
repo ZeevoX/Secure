@@ -35,6 +35,19 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -62,19 +75,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialog;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import static com.zeevox.secure.App.masterKey;
 
 public class MainActivity extends SecureAppCompatActivity implements SearchView.OnQueryTextListener {
@@ -97,14 +97,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
             word[j] = (char) ('a' + random.nextInt(26));
         }
         return new String(word);
-    }
-
-    public static void refreshRecyclerView(int index) {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -182,9 +174,9 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                         case R.id.nav_settings:
                             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                             break;
-                        /*case R.id.nav_backup_and_restore:
-                            startActivity(new Intent(MainActivity.this, BackupRestoreActivity.class));
-                            break;*/
+                        case R.id.nav_backup_and_restore:
+                            //startActivity(new Intent(MainActivity.this, BackupActivity.class));
+                            break;
                         case R.id.nav_send_feedback:
                             startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
                             break;
@@ -511,6 +503,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
         // response to some other intent, and the code below shouldn't run at all.
 
+        super.onActivityResult(requestCode, resultCode, resultData);
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             // The document selected by the user won't be returned in the intent.
             // Instead, a URI to that document will be contained in the return intent
@@ -526,7 +519,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                 try {
                     InputStream inputStream = resolver.openInputStream(uri);
                     OutputStream outputStream = new FileOutputStream(destination);
-                    byte buffer[] = new byte[1024];
+                    byte[] buffer = new byte[1024];
                     int length;
                     while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
                         outputStream.write(buffer, 0, length);
@@ -546,7 +539,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
 
         if (requestCode == 1042) {
             if (resultCode == RESULT_OK) {
-                        // Create the intent
+                // Create the intent
                 Intent newActivityIntent = new Intent(this, EditEntryActivity.class);
                 newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 // Send the master key to the new entry activity too

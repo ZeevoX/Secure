@@ -7,11 +7,11 @@ import android.app.backup.BackupAgentHelper;
 import android.content.Intent;
 import android.os.Build;
 
-import com.zeevox.secure.App;
-import com.zeevox.secure.R;
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.zeevox.secure.App;
+import com.zeevox.secure.R;
 
 public class CustomBackupAgent extends BackupAgentHelper {
 

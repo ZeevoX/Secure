@@ -14,34 +14,50 @@
 
 package com.zeevox.secure.settings;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.snackbar.Snackbar;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
+import com.zeevox.secure.backup.BackupRestoreHelper;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Entries;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-
 public class SettingsFragment extends PreferenceFragment {
+
+    private static final int REQUEST_CODE_SIGN_IN = 2108;
+    private static final int PERMISSIONS_REQUEST = 2550;
+    private final String TAG = getClass().getSimpleName();
+    private SwitchPreference backupRestorePreference;
+    private BackupRestoreHelper backupRestoreHelper;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,30 +69,47 @@ public class SettingsFragment extends PreferenceFragment {
             e.printStackTrace();
         }
 
+        backupRestoreHelper = new BackupRestoreHelper(getActivity());
+
         Preference exportPasswordsPreference = findPreference(Flags.EXPORT_PASSWORDS);
         exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
-            Uri uri = Uri.fromFile(new File(getActivity().getFilesDir(), Entries.FILENAME));
-            Log.i(getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
-            File destination = new File(Environment.getExternalStorageDirectory(),  Entries.FILENAME);
-            ContentResolver resolver = getActivity().getContentResolver();
-            try {
-                InputStream inputStream = resolver.openInputStream(uri);
-                OutputStream outputStream = new FileOutputStream(destination);
-                byte buffer[] = new byte[1024];
-                int length;
-                while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-                outputStream.close();
-                inputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Log.i(getClass().getSimpleName(), "Exporting passwords successful!");
-            Snackbar.make(Objects.requireNonNull(getView()), "Passwords successfully exported to " + destination.toString(), Snackbar.LENGTH_LONG).show();
+            // Check application required permissions
+            if (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted; request the permission
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST);
 
+                // PERMISSIONS_REQUEST is an app-defined int constant.
+                // The callback method gets the result of the request.
+
+            } else {
+                // Permission has already been granted
+                if (exportPasswords()) {
+                    Snackbar.make(Objects.requireNonNull(getView()), "Passwords successfully exported.", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(Objects.requireNonNull(getView()), "An error occurred while exporting passwords", Snackbar.LENGTH_LONG).show();
+                }
+            }
+            return true;
+        });
+
+        backupRestorePreference = (SwitchPreference) findPreference(Flags.BACKUP_RESTORE);
+        backupRestorePreference.setOnPreferenceChangeListener((preference, o) -> {
+            boolean switched = (boolean) o;
+            if (switched) {
+                backupRestoreHelper.setup();
+            }
+            return true;
+        });
+
+        Preference backupNowPreference = findPreference(Flags.BACKUP_RESTORE_NOW);
+        backupNowPreference.setOnPreferenceClickListener(preference -> {
+            BackupRestoreHelper brh = new BackupRestoreHelper(getActivity());
+            brh.setup();
+            brh.backup();
             return true;
         });
 
@@ -106,6 +139,121 @@ public class SettingsFragment extends PreferenceFragment {
         if (rootView != null) {
             ListView list = rootView.findViewById(android.R.id.list);
             list.setDivider(null);
+        }
+    }
+
+    public boolean exportPasswords() {
+        Uri uri = Uri.fromFile(new File(getActivity().getFilesDir(), Entries.FILENAME));
+        Log.i(this.getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
+        File destination = new File(Environment.getExternalStorageDirectory(),  Entries.FILENAME);
+        ContentResolver resolver = getActivity().getContentResolver();
+        try {
+            InputStream inputStream = resolver.openInputStream(uri);
+            OutputStream outputStream = new FileOutputStream(destination);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+//    /**
+//     * Starts a sign-in activity using {@link #REQUEST_CODE_SIGN_IN}.
+//     */
+//    private void requestSignIn() {
+//        Log.d(TAG, "Requesting sign-in");
+//
+//        GoogleSignInOptions signInOptions =
+//                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                        .requestEmail()
+//                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+//                        .build();
+//        GoogleSignInClient client = GoogleSignIn.getClient(getActivity(), signInOptions);
+//
+//        // The result of the sign-in Intent is handled in onActivityResult.
+//        startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+//    }
+
+
+
+
+
+    /**
+//     * Handles the {@code result} of a completed sign-in activity initiated from {@link
+//     * #requestSignIn()}.
+     */
+    private void handleSignInResult(Intent result) {
+        GoogleSignIn.getSignedInAccountFromIntent(result)
+                .addOnSuccessListener(googleAccount -> {
+                    Log.d(TAG, "Signed in as " + googleAccount.getEmail());
+
+                    backupRestoreHelper.setup();
+
+//                    // Use the authenticated account to sign in to the Drive service.
+//                    GoogleAccountCredential credential =
+//                            GoogleAccountCredential.usingOAuth2(
+//                                    getActivity(), Collections.singleton(DriveScopes.DRIVE_FILE));
+//                    credential.setSelectedAccount(googleAccount.getAccount());
+//                    Drive googleDriveService =
+//                            new Drive.Builder(
+//                                    AndroidHttp.newCompatibleTransport(),
+//                                    new GsonFactory(),
+//                                    credential)
+//                                    .setApplicationName("Secure - Password Manager")
+//                                    .build();
+//
+//                    // The DriveServiceHelper encapsulates all REST API and SAF functionality.
+//                    // Its instantiation is required before handling any onClick actions.
+//                    mDriveServiceHelper = new DriveServiceHelper(googleDriveService);
+                    backupRestorePreference.setChecked(true);
+
+                })
+                .addOnFailureListener(exception -> {
+                    Log.e(TAG, "Unable to sign in.", exception);
+                    backupRestorePreference.setChecked(false);
+                });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        switch (requestCode) {
+            case REQUEST_CODE_SIGN_IN:
+                if (resultCode == Activity.RESULT_OK && resultData != null) {
+                    handleSignInResult(resultData);
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                // permission was granted, yay!
+                exportPasswords();
+
+            } else {
+                // permission denied, boo!
+                Snackbar.make(Objects.requireNonNull(getView()), "Storage permission denied; cannot save.", Snackbar.LENGTH_LONG)
+                        .setAction("TRY AGAIN", view -> {
+                            // Permission is not granted; request the permission
+                            ActivityCompat.requestPermissions(getActivity(),
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    PERMISSIONS_REQUEST);
+                        }).show();
+            }
         }
     }
 }

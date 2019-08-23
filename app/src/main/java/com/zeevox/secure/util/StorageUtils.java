@@ -14,19 +14,28 @@
 
 package com.zeevox.secure.util;
 
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
-class StorageUtils {
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
+import com.zeevox.secure.cryptography.Entries;
 
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
+
+public class StorageUtils {
+    private static final String TAG = "StorageUtils";
+
+
+
+    public File getPasswords(Context context) {
+        return new File(context.getFilesDir(), Entries.FILENAME);
     }
 }

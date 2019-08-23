@@ -56,6 +56,20 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    <string-array name="pref_backup_titles">
+        <item>Disabled</item>
+        <item>Manual</item>
+        <item>Auto (recommended)</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
+    <string-array name="pref_backup_values">
+        <item>off</item>
+        <item>manual</item>
+        <item>auto</item>
+        <item>daily</item>
+        <item>weekly</item>
+    </string-array>
 
     <string name="sample_rv_text" translatable="false">Element</string>
 
@@ -132,5 +146,7 @@
         <item>Ask for fingerprint every time (recommended)</item>
         <item>Ask for master password every time</item>
     </string-array>
+
+    <string name="google_backup_friendly_name">Secure - Password Database</string>
 
 </resources>

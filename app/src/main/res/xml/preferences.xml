@@ -32,7 +32,7 @@
             android:summary="%s"
             android:title="Security level" />
 
-        <Preference android:summary="NOTE: The application will ask for the master password each time you open the application afresh." />
+        <Preference android:enabled="false" android:summary="NOTE: The application will ask for the master password each time you open the application afresh." />
 
         <!--<SwitchPreference-->
         <!--android:defaultValue="true"-->
@@ -72,7 +72,21 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Danger zone">
+    <PreferenceCategory android:title="Backup and restore">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:summary="Enable Google Drive™ password backup functionality"
+            android:title="Backup passwords"
+            android:key="google_drive_backup" />
+        <Preference
+            android:title="Backup passwords now"
+            android:summary="Manually trigger a backup of your passwords"
+            android:key="google_drive_backup_now" />
+        <Preference android:enabled="false" android:summary="Google Drive is a trademark of Google Inc." />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Passwords">
+        <Preference android:enabled="false" android:summary="Some of these settings can be dangerous and cause data loss. Proceed with caution." />
         <Preference
             android:title="Export passwords"
             android:summary="Save your passwords as an XML file"
