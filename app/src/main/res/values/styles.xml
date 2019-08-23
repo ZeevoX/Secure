@@ -27,6 +27,7 @@
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:navigationBarColor">?colorPrimaryDark</item>
         <item name="android:textColorTertiary">@color/text_color_tertiary</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">

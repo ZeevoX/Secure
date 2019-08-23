@@ -49,6 +49,9 @@ import com.zeevox.secure.ui.EditEntryActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -56,16 +59,18 @@ import java.util.Objects;
  */
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
     private static final String TAG = "CustomAdapter";
-    private final String[] mDataSet;
-    private static RecyclerView mRecyclerView;
+    private final List<String> mDataSet;
+    private RecyclerView mRecyclerView;
+    private AppCompatActivity activity;
 
     /**
      * Initialize the dataset of the Adapter.
      *
      * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
      */
-    public CustomAdapter(String[] dataSet) {
-        mDataSet = dataSet;
+    public CustomAdapter(AppCompatActivity activity, String[] dataSet) {
+        this.activity = activity;
+        mDataSet = new ArrayList<>(Arrays.asList(dataSet));
     }
 
     /**
@@ -79,7 +84,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-
         mRecyclerView = recyclerView;
     }
 
@@ -91,7 +95,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.recycler_item, viewGroup, false);
 
-        return new ViewHolder(v);
+        return new ViewHolder(v, activity, mDataSet, mRecyclerView);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -101,7 +105,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        viewHolder.getTextView().setText(mDataSet[position]);
+        viewHolder.getTextView().setText(mDataSet.get(position));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -110,10 +114,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         if (mDataSet == null) {
             return 0;
         } else {
-            return mDataSet.length;
+            return mDataSet.size();
         }
     }
-
 
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
@@ -121,15 +124,21 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public static class ViewHolder extends RecyclerView.ViewHolder implements ActionMode.Callback {
         private final TextView textView;
         private ActionMode mActionMode;
-        private AppCompatActivity activity = null;
+        private AppCompatActivity activity;
+        private List<String> mDataSet;
+        private RecyclerView mRecyclerView;
 
-        ViewHolder(View v) {
+        ViewHolder(View v, AppCompatActivity activity, List<String> dataSet, RecyclerView recyclerView) {
             super(v);
+
+            this.activity = activity;
+            this.mDataSet = dataSet;
+            this.mRecyclerView = recyclerView;
+
             textView = v.findViewById(R.id.textView);
 
             // Define click listener for the ViewHolder's View.
             v.setOnClickListener(v1 -> {
-                activity = ((AppCompatActivity) v1.getContext());
                 try {
                     showMasterDialog(MASTER_DIALOG_KEY_INFO, getAdapterPosition());
                     Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
@@ -140,15 +149,16 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
             // Define long click listener and contextual action bar.
             v.setOnLongClickListener(view -> {
-                activity = ((AppCompatActivity) view.getContext());
                 Log.d(TAG, "Element " + getAdapterPosition() + " long clicked.");
 
                 if (mActionMode != null) {
                     return false;
+                } else {
+                    Log.w(TAG, "mActionMode is not null");
                 }
 
                 // Start the CAB using the ActionMode.Callback defined above
-                mActionMode = activity.startSupportActionMode(mActionModeCallback());
+                mActionMode = ((AppCompatActivity) view.getContext()).startSupportActionMode(mActionModeCallback());
                 view.setSelected(true);
                 return true;
             });
@@ -344,17 +354,15 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     break;
                 case MASTER_DIALOG_DELETE_ENTRY:
                     Crypto.getEntries().removeEntryAt(getAdapterPosition());
-                    refreshRecyclerView(getAdapterPosition());
-                    //TODO refresh recyclerview to notify user of changes
+                    mDataSet.remove(getAdapterPosition());
+                    try {
+                        mRecyclerView.getAdapter().notifyItemRemoved(getAdapterPosition());
+                        mRecyclerView.getAdapter().notifyDataSetChanged();
+                    } catch (NullPointerException npe) {
+                        npe.printStackTrace();
+                    }
                     break;
             }
-        }
-
-        void refreshRecyclerView(int index) {
-            mRecyclerView.removeViewAt(index);
-            Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemRemoved(index);
-            mRecyclerView.getAdapter().notifyItemRangeChanged(index, Crypto.getEntries().getEntries().size());
-            mRecyclerView.getAdapter().notifyDataSetChanged();
         }
     }
 }

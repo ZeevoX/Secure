@@ -201,7 +201,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         }
 
         // Specify our CustomAdapter
-        mAdapter = new CustomAdapter(mDataSet);
+        mAdapter = new CustomAdapter(MainActivity.this, mDataSet);
         mRecyclerView.setAdapter(mAdapter);
 
         // Add item separators
