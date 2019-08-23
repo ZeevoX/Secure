@@ -22,13 +22,18 @@ static def buildDate() {
     return df.format(new Date())
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     signingConfigs {
+        // All builds must be signed with this key in order for Google Drive backup to work
         debug {
-            storeFile file('C:\\Users\\ZeevoX\\AndroidStudioProjects\\Secure-app\\secure.jks')
-            storePassword 'papaImama04'
-            keyAlias = 'secure-android'
-            keyPassword 'papaImama04'
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
     dataBinding {
