@@ -85,6 +85,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
     CoordinatorLayout layout;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
+    private NavigationView navigationView;
     private String[] mDataSet;
     private LinearLayoutManager mLayoutManager;
     private boolean displayingDialog = false;
@@ -155,7 +156,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
             mDrawerLayout.openDrawer(GravityCompat.START);
         });
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
                     // close drawer when item is tapped
@@ -168,11 +169,14 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                         case R.id.nav_settings:
                             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                             break;
-                        case R.id.nav_backup_and_restore:
-                            //startActivity(new Intent(MainActivity.this, BackupActivity.class));
+                        case R.id.nav_help:
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://zeevox.net/secure/")));
                             break;
                         case R.id.nav_send_feedback:
                             startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
+                            break;
+                        case R.id.nav_tos:
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://zeevox.net/secure/privacy.html")));
                             break;
                     }
 
@@ -587,6 +591,9 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
     @Override
     public void onResume() {
         Log.d(getClass().getSimpleName(), "onResume called");
+        try {
+            navigationView.setCheckedItem(R.id.nav_home);
+        } catch (NullPointerException npe) {}
         super.onResume();
     }
 

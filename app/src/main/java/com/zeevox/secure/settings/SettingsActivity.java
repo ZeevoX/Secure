@@ -14,12 +14,21 @@
 
 package com.zeevox.secure.settings;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import com.zeevox.secure.R;
-import com.zeevox.secure.core.SecureAppCompatActivity;
+import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
+import com.zeevox.secure.BuildConfig;
+import com.zeevox.secure.R;
+import com.zeevox.secure.core.SecureAppCompatActivity;
+import com.zeevox.secure.ui.FeedbackActivity;
+import com.zeevox.secure.ui.PassgenActivity;
 
 public class SettingsActivity extends SecureAppCompatActivity {
     @Override
@@ -28,8 +37,52 @@ public class SettingsActivity extends SecureAppCompatActivity {
         // Inflate layout
         setContentView(R.layout.activity_settings);
 
+//        final Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         final Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        final DrawerLayout mDrawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationOnClickListener(v -> {
+            // Handle the navigation click by showing a BottomDrawer etc.
+            mDrawerLayout.openDrawer(GravityCompat.START);
+        });
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    // close drawer when item is tapped
+                    mDrawerLayout.closeDrawers();
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.nav_home:
+                            finish();
+                            break;
+                        case R.id.nav_passgen:
+                            startActivity(new Intent(SettingsActivity.this, PassgenActivity.class));
+                            break;
+                        case R.id.nav_help:
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://zeevox.net/secure/")));
+                            break;
+                        case R.id.nav_send_feedback:
+                            startActivity(new Intent(SettingsActivity.this, FeedbackActivity.class));
+                            break;
+                        case R.id.nav_tos:
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://zeevox.net/secure/privacy.html")));
+                            break;
+                    }
+
+                    // Add code here to update the UI based on the item selected
+                    // For example, swap UI fragments here
+
+                    return true;
+                });
+        navigationView.setCheckedItem(R.id.nav_settings);
+
+        TextView navHeaderAppVersionText = navigationView.getHeaderView(0).findViewById(R.id.nav_header_app_version);
+        navHeaderAppVersionText.setText(String.format(getString(R.string.nav_header_app_version), BuildConfig.VERSION_NAME));
     }
 }

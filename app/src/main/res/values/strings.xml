@@ -104,9 +104,9 @@
     <string name="nav_dest_home">Home</string>
     <string name="nav_dest_passgen">Generate password</string>
     <string name="nav_dest_settings">Settings</string>
-    <string name="nav_dest_help"><![CDATA[Help & FAQ]]></string>
+    <string name="nav_dest_help">About</string>
     <string name="nav_dest_send_feedback">Send feedback</string>
-    <string name="nav_dest_tos">Terms of Service</string>
+    <string name="nav_dest_tos">Terms &amp; Privacy Policy</string>
 
     <string name="action_send_feedback">Send feedback</string>
     <string name="feedback_name_hint">Your name…</string>

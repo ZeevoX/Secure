@@ -30,24 +30,18 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/nav_dest_settings" />
-        <item
-            android:id="@+id/nav_backup_and_restore"
-            android:icon="@drawable/ic_backup_restore"
-            android:title="Backup and Restore" />
     </group>
     <group
         android:id="@+id/nav_group_customer"
         android:checkableBehavior="none">
         <item
             android:id="@+id/nav_help"
-            android:title="@string/nav_dest_help"
-            android:enabled="false"/>
+            android:title="@string/nav_dest_help" />
         <item
             android:id="@+id/nav_send_feedback"
             android:title="@string/nav_dest_send_feedback" />
         <item
             android:id="@+id/nav_tos"
-            android:title="@string/nav_dest_tos"
-            android:enabled="false"/>
+            android:title="@string/nav_dest_tos"/>
     </group>
 </menu>
