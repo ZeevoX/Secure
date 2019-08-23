@@ -20,16 +20,13 @@ import android.app.KeyguardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.View;
-import android.view.WindowManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.zeevox.secure.backup.BackupRestoreHelper;
 import com.zeevox.secure.core.SecureAppCompatActivity;
@@ -65,18 +62,6 @@ public class App extends SecureAppCompatActivity {
         // Inflate the splash screen layout
         setContentView(R.layout.activity_splash);
 
-        // Set light navigation bar on Oreo SDK 26+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
-            // Colored navigation bar only on OS below Q due to gesture navigation bar being very small.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            }
-
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        }
-
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Flags.BACKUP_RESTORE, false)) {
             backupRestoreHelper = new BackupRestoreHelper(this);
             backupRestoreHelper.setup();
@@ -88,20 +73,27 @@ public class App extends SecureAppCompatActivity {
     private void checkCredentials() {
         KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
 
-        if (!keyguardManager.isKeyguardSecure()) {
-            // Show a message that the user hasn't set up a lock screen.
-            Toast.makeText(this,
-                    "Secure lock screen hasn't set up.\n"
-                            + "Go to 'Settings -> Security -> Screenlock' to set up a lock screen",
-                    Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+        if (keyguardManager != null) {
+            if (!keyguardManager.isKeyguardSecure()) {
+                Log.e(getClass().getSimpleName(), "Device keyguard is not secured by a PIN, pattern or password");
+                // Show a message that the user hasn't set up a lock screen.
+                Toast.makeText(this,
+                        "Secure lock screen hasn't set up.\n"
+                                + "Go to 'Settings -> Security -> Screenlock' to set up a lock screen",
+                        Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
 
-        Intent credentialsIntent;
-        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
-        if (credentialsIntent != null) {
-            startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
+            Intent credentialsIntent;
+            credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
+            if (credentialsIntent != null) {
+                startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
+            } else {
+                Log.e(getClass().getSimpleName(), "Could not create Keyguard Manager device credential request");
+            }
+        } else {
+            Log.e(getClass().getSimpleName(), "KeyguardManager system service unavailable");
         }
     }
 

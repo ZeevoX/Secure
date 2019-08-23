@@ -18,18 +18,18 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.zeevox.secure.R;
-import com.zeevox.secure.util.LogUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.zeevox.secure.R;
 
 public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
 
@@ -54,31 +54,31 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
         public void onStateChanged(@NonNull View view, int newState) {
             switch (newState) {
                 case BottomSheetBehavior.STATE_COLLAPSED: {
-                    LogUtils.d("BSB", "collapsed");
+                    Log.d("BSB", "collapsed");
                     //dismiss();
                 }
                 case BottomSheetBehavior.STATE_SETTLING: {
-                    LogUtils.d("BSB", "settling");
+                    Log.d("BSB", "settling");
                 }
                 case BottomSheetBehavior.STATE_EXPANDED: {
-                    LogUtils.d("BSB", "expanded");
+                    Log.d("BSB", "expanded");
                 }
                 case BottomSheetBehavior.STATE_HIDDEN: {
-                    LogUtils.d("BSB", "hidden");
+                    Log.d("BSB", "hidden");
                     //dismiss();
                 }
                 case BottomSheetBehavior.STATE_DRAGGING: {
-                    LogUtils.d("BSB", "dragging");;
+                    Log.d("BSB", "dragging");;
                 }
                 case BottomSheetBehavior.STATE_HALF_EXPANDED: {
-                    LogUtils.d("BSB", "half-expanded");
+                    Log.d("BSB", "half-expanded");
                 }
             }
         }
 
         @Override
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            LogUtils.d("BSB", "sliding " + slideOffset);
+            Log.d("BSB", "sliding " + slideOffset);
         }
     };
 

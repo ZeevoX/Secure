@@ -17,15 +17,13 @@ package com.zeevox.secure.cryptography;
 import android.content.Context;
 import android.util.Log;
 
-import com.zeevox.secure.util.LogUtils;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.BadPaddingException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class Crypto {
     /**
@@ -73,8 +71,7 @@ public class Crypto {
                 return false;
             }
         } catch (NullPointerException npe) {
-            LogUtils.e(TAG, npe);
-            LogUtils.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
+            Log.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started", npe);
             return false;
         }
     }
@@ -111,8 +108,7 @@ public class Crypto {
         try {
             return mEntries.isEmpty();
         } catch (NullPointerException npe) {
-            LogUtils.e(TAG, npe);
-            LogUtils.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started");
+            Log.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started", npe);
             return false;
         }
     }

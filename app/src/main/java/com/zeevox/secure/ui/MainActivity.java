@@ -63,7 +63,6 @@ import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.recycler.CustomAdapter;
 import com.zeevox.secure.settings.SettingsActivity;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
-import com.zeevox.secure.util.LogUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -100,13 +99,8 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
     }
 
     @Override
-    public boolean passwordProtect() {
-        return true;
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        LogUtils.d(getClass().getSimpleName(), "onCreate called");
+        Log.d(getClass().getSimpleName(), "onCreate called");
 
         super.onCreate(savedInstanceState);
 
@@ -131,7 +125,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         try {
             Crypto.init(MainActivity.this);
             if (Crypto.isNewUser()) {
-                LogUtils.d(getClass().getSimpleName(), "New user!");
+                Log.d(getClass().getSimpleName(), "New user!");
                 newMasterDialog();
             } else {
                 setupRecycler();
@@ -569,7 +563,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
 
     @Override
     protected void onStart() {
-        LogUtils.d(getClass().getSimpleName(), "onStart called");
+        Log.d(getClass().getSimpleName(), "onStart called");
         super.onStart();
         try {
             Crypto.init(MainActivity.this);
@@ -592,7 +586,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
      */
     @Override
     public void onResume() {
-        LogUtils.d(getClass().getSimpleName(), "onResume called");
+        Log.d(getClass().getSimpleName(), "onResume called");
         super.onResume();
     }
 

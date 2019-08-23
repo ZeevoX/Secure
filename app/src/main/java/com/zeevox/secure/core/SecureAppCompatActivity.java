@@ -17,79 +17,30 @@ package com.zeevox.secure.core;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
-
-import com.zeevox.secure.R;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.zeevox.secure.R;
+
 @SuppressLint("Registered")
 public class SecureAppCompatActivity extends AppCompatActivity {
-
-    private static int activities_num = 0;
-    private boolean shouldExecuteOnResume;
-
-    protected boolean passwordProtect() {
-        return false;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.secure_primary, getTheme()));
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+            getWindow().setNavigationBarColor(getResources().getColor(
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                            ? R.color.secure_primary : android.R.color.transparent, getTheme()));
         }
-        // Activity created for the first time
-        shouldExecuteOnResume = false;
+
         // Don't show app snapshot in overview and don't allow screenshots
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
-
-//    /* START Close the activity when exiting, don't just switch from it. */
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        finish();
-//    }
-//
-//    /* *** */
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        finish();
-//    }
-//    /* END */
-//
-//    /* START Handle password protecting the app */
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        activities_num++;
-//        if (activities_num == 1) {
-//            // User back in the application
-//            Log.i(getClass().getSimpleName(), "User has returned to the application");
-//            if (shouldExecuteOnResume && passwordProtect()) {
-//                shouldExecuteOnResume = false;
-//                startActivity(new Intent(this, App.class));
-//                finish();
-//            }
-//        }
-//    }
-//
-//    /* *** */
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        activities_num--;
-//        if (activities_num == 0) {
-//            // User not in the application
-//            shouldExecuteOnResume = true;
-//            Log.i(getClass().getSimpleName(), "User no longer in the application");
-//        }
-//    }
-//    /* END */
 }

@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -41,15 +48,8 @@ import com.zeevox.secure.cryptography.Entry;
 import com.zeevox.secure.ui.EditEntryActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
-import com.zeevox.secure.util.LogUtils;
 
 import java.util.Objects;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDialog;
-import androidx.appcompat.view.ActionMode;
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -97,7 +97,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
-        //LogUtils.d(TAG, "Element " + position + " set.");
+        //Log.d(TAG, "Element " + position + " set.");
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
@@ -132,7 +132,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 activity = ((AppCompatActivity) v1.getContext());
                 try {
                     showMasterDialog(MASTER_DIALOG_KEY_INFO, getAdapterPosition());
-                    LogUtils.d(TAG, "Element " + getAdapterPosition() + " clicked.");
+                    Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -141,7 +141,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             // Define long click listener and contextual action bar.
             v.setOnLongClickListener(view -> {
                 activity = ((AppCompatActivity) view.getContext());
-                LogUtils.d(TAG, "Element " + getAdapterPosition() + " long clicked.");
+                Log.d(TAG, "Element " + getAdapterPosition() + " long clicked.");
 
                 if (mActionMode != null) {
                     return false;
@@ -195,7 +195,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 case R.id.action_item_delete:
                     try {
                         showMasterDialog(MASTER_DIALOG_DELETE_ENTRY, getAdapterPosition());
-                        LogUtils.d(TAG, "Delete item with id " + getAdapterPosition());
+                        Log.d(TAG, "Delete item with id " + getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();
                     } catch (Exception e) {
