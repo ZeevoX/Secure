@@ -19,21 +19,22 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.snackbar.Snackbar;
@@ -50,18 +51,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
     private static final int REQUEST_CODE_SIGN_IN = 2108;
     private static final int PERMISSIONS_REQUEST = 2550;
     private final String TAG = getClass().getSimpleName();
-    private SwitchPreference backupRestorePreference;
+    private SwitchPreferenceCompat backupRestorePreference;
     private BackupRestoreHelper backupRestoreHelper;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.preferences, rootKey);
 
         try {
             Crypto.init(getActivity());
@@ -96,7 +96,7 @@ public class SettingsFragment extends PreferenceFragment {
             return true;
         });
 
-        backupRestorePreference = (SwitchPreference) findPreference(Flags.BACKUP_RESTORE);
+        backupRestorePreference = findPreference(Flags.BACKUP_RESTORE);
         backupRestorePreference.setOnPreferenceChangeListener((preference, o) -> {
             boolean switched = (boolean) o;
             if (switched) {
@@ -132,20 +132,17 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         // Hide divider line between preferences
-        View rootView = getView();
-        if (rootView != null) {
-            ListView list = rootView.findViewById(android.R.id.list);
-            list.setDivider(null);
-        }
+        setDivider(new ColorDrawable(Color.TRANSPARENT));
+        setDividerHeight(0);
     }
 
     public boolean exportPasswords() {
         Uri uri = Uri.fromFile(new File(getActivity().getFilesDir(), Entries.FILENAME));
         Log.i(this.getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
-        File destination = new File(Environment.getExternalStorageDirectory(),  Entries.FILENAME);
+        File destination = new File(Environment.getExternalStorageDirectory(), Entries.FILENAME);
         ContentResolver resolver = getActivity().getContentResolver();
         try {
             InputStream inputStream = resolver.openInputStream(uri);
@@ -182,12 +179,9 @@ public class SettingsFragment extends PreferenceFragment {
 //    }
 
 
-
-
-
     /**
-//     * Handles the {@code result} of a completed sign-in activity initiated from {@link
-//     * #requestSignIn()}.
+     * //     * Handles the {@code result} of a completed sign-in activity initiated from {@link
+     * //     * #requestSignIn()}.
      */
     private void handleSignInResult(Intent result) {
         GoogleSignIn.getSignedInAccountFromIntent(result)

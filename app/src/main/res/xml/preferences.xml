@@ -16,7 +16,7 @@
 
     <PreferenceCategory android:title="General">
 
-        <!--<SwitchPreference-->
+        <!--<SwitchPreferenceCompat-->
             <!--android:defaultValue="false"-->
             <!--android:key="application_unlock"-->
             <!--android:summary="Unlock the application with your password or fingerprint."-->
@@ -34,7 +34,7 @@
 
         <Preference android:enabled="false" android:summary="NOTE: The application will ask for the master password each time you open the application afresh." />
 
-        <!--<SwitchPreference-->
+        <!--<SwitchPreferenceCompat-->
         <!--android:defaultValue="true"-->
         <!--android:key="master_pass_each_time"-->
         <!--android:summary="@string/pref_master_pass_each_time_desc"-->
@@ -73,7 +73,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Backup and restore">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:summary="Enable Google Drive™ password backup functionality"
             android:title="Backup passwords"
