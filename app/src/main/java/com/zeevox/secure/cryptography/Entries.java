@@ -19,16 +19,21 @@ import android.content.Context;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -43,7 +48,7 @@ public class Entries {
 
     private final ArrayList<Entry> entries = new ArrayList<>();
 
-    Entries(Context context) throws Exception {
+    Entries(Context context) throws ParserConfigurationException, IOException, TransformerException, SAXException {
         data = new File(context.getFilesDir(), FILENAME);
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         if (!data.exists()) {
@@ -64,7 +69,7 @@ public class Entries {
         return entries.get(ind);
     }
 
-    private void addEntrySortedNoSave(Entry e) throws Exception {
+    private int addEntrySortedNoSave(Entry e) {
         int i = 0;
         int n = entries.size();
         while (i < n &&
@@ -74,19 +79,21 @@ public class Entries {
         if (i < n && lessThanEQ(getEntryAt(i), e))
             throw new RuntimeException("Duplicate key '" + e.key + "'");
         entries.add(i, e);
+        return i;
     }
 
-    public void addEntrySorted(Entry e) throws Exception {
-        addEntrySortedNoSave(e);
+    public int addEntrySorted(Entry e) throws FileNotFoundException, TransformerException {
+        int pos = addEntrySortedNoSave(e);
         save();
+        return pos;
     }
 
-    public void removeEntryAt(int ind) throws Exception {
+    public void removeEntryAt(int ind) throws FileNotFoundException, TransformerException {
         entries.remove(ind);
         save();
     }
 
-    public void replaceEntryAt(int ind, Entry e) throws Exception {
+    public void replaceEntryAt(int ind, Entry e) throws FileNotFoundException, TransformerException {
         entries.remove(ind);
         addEntrySortedNoSave(e);
         save();
@@ -100,7 +107,7 @@ public class Entries {
         return data;
     }
 
-    private void load() throws Exception {
+    private void load() throws IOException, SAXException {
         Document document = documentBuilder.parse(data);
         NodeList list = document.getDocumentElement().getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -108,7 +115,7 @@ public class Entries {
         }
     }
 
-    private void save() throws Exception {
+    private void save() throws FileNotFoundException, TransformerException {
         // build the document
         Document document = documentBuilder.newDocument();
         Element root = document.createElement("entries");

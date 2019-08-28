@@ -28,19 +28,9 @@
         android:layout_marginStart="@dimen/margin_large"
         android:layout_marginTop="@dimen/margin_large"
         android:layout_marginEnd="@dimen/margin_large"
-        android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginBottom="@dimen/activity_margin"
         android:text="@string/dialog_master_pass_title"
         android:textAppearance="@style/TextAppearance.Secure.DialogTitle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_large"
-        android:layout_marginTop="@dimen/spacing_normal"
-        android:layout_marginEnd="@dimen/margin_large"
-        android:layout_marginBottom="@dimen/margin_normal"
-        android:text="@string/dialog_master_pass_desc"
-        android:textAppearance="@style/TextAppearance.Secure.DialogContent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dialog_master_password_layout"

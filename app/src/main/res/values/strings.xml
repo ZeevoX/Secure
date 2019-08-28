@@ -135,14 +135,12 @@
 
     <string-array name="security_level_entries">
         <item>none</item>
-        <item>appfingerprint</item>
         <item>fingerprint</item>
         <item>password</item>
     </string-array>
 
     <string-array name="security_level_titles">
         <item>None</item>
-        <item>Unlock application with fingerprint</item>
         <item>Ask for fingerprint every time (recommended)</item>
         <item>Ask for master password every time</item>
     </string-array>

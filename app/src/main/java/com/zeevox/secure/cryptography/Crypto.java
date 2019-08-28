@@ -30,16 +30,13 @@ public class Crypto {
      * Tag for logging info to the logcat
      */
     private static final String TAG = "Crypto";
-    private static Entries mEntries = null;
-
-    public Crypto() {
-    }
+    private Entries mEntries;
 
     /**
      * Initialise Crypto
      * @throws Exception since Entries() throws an Exception too
      */
-    public static void init(Context context) throws Exception {
+    public Crypto(Context context) throws Exception {
         mEntries = new Entries(context);
     }
 
@@ -53,31 +50,27 @@ public class Crypto {
      *                   This is entered in MainActivity.showMasterDialog
      * @return Returns whether the master password that was supplied was successfully
      * used to decrypt a random key in the database.
-     * @throws Exception Allows for graphical managing of any errors that occur,
-     *                   since Entries.getEntries() can result in an e.
      */
-    public static boolean verifyMasterPass(String masterPass) throws Exception {
+    public boolean verifyMasterPass(String masterPass) {
+        if (mEntries.isEmpty()) {
+            Log.w(TAG, "New user, allowing access.");
+            return true;
+        }
         try {
-            if (isNewUser()) {
-                Log.w(TAG, "New user, allowing access.");
-                return true;
-            }
-            try {
-                Encryptor.decrypt(mEntries.getEntryAt(ThreadLocalRandom.current().nextInt(0, mEntries.getEntries().size())).pass, masterPass.toCharArray());
-                Log.d(TAG, "Correct password entered!");
-                return true;
-            } catch (BadPaddingException bpe) {
-                Log.d(TAG, "Wrong password entered!");
-                return false;
-            }
-        } catch (NullPointerException npe) {
-            Log.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started", npe);
+            Encryptor.decrypt(mEntries.getEntryAt(ThreadLocalRandom.current().nextInt(0, mEntries.getEntries().size())).pass, masterPass.toCharArray());
+            Log.d(TAG, "Correct password entered!");
+            return true;
+        } catch (BadPaddingException bpe) {
+            Log.d(TAG, "Wrong password entered!");
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
 
     /**
-     * This method adds an entry to the user's password database.
+     * This method creates a new entry that can be saved to the user's password database.
      *
      * @param entryName   The parameter that specifies the visible, unencrypted
      *                    tag or title for the key (e.g. the website to which
@@ -89,35 +82,21 @@ public class Crypto {
      * @throws Exception Throws an exception due to the fact that
      *                   Entries.addEntrySorted(Entry entry) throws an exception too.
      */
-    public static void addEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
-                                @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
+    public static Entry newEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
+                                 @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
         String notesEnc = null;
         if (keyNotes != null) {
             notesEnc = Encryptor.encrypt(keyNotes, masterPass.toCharArray());
         }
-        Entry entry = new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
+        return new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
                 Encryptor.encrypt(keyPassword, masterPass.toCharArray()), notesEnc);
-        mEntries.addEntrySorted(entry);
-    }
-
-    /**
-     * This method will return whether there are any passwords previously saved
-     * @return Returns true or false depending whether this is a new user.
-     */
-    public static boolean isNewUser() {
-        try {
-            return mEntries.isEmpty();
-        } catch (NullPointerException npe) {
-            Log.e(TAG, "Make sure to initialise Crypto first! Call Crypto.init() to get started", npe);
-            return false;
-        }
     }
 
     /**
      * The method allows direct access to mEntries
      * @return Returns the value of mEntries
      */
-    public static Entries getEntries() {
+    public Entries getEntries() {
         return mEntries;
     }
 
@@ -125,7 +104,7 @@ public class Crypto {
      * Gives a reference to the password database file
      * @return Returns the secure.xml File.
      */
-    public static File getFile() {
+    public File getFile() {
         return mEntries.getData();
     }
 }

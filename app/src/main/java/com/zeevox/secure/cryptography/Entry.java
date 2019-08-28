@@ -14,6 +14,8 @@
 
 package com.zeevox.secure.cryptography;
 
+import androidx.annotation.NonNull;
+
 import com.zeevox.secure.util.StringUtils;
 
 import org.w3c.dom.Attr;
@@ -22,8 +24,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import androidx.annotation.NonNull;
 
 public class Entry {
 
@@ -45,7 +45,7 @@ public class Entry {
     }
 
     // Constructor: de-serialize Entry from XML
-    public Entry(Node node) throws Exception {
+    public Entry(Node node) {
         NodeList list = node.getChildNodes();
         String k = null, n = null, p = null, t = null;
         for (int i = 0; i < list.getLength(); i++) {
@@ -82,7 +82,7 @@ public class Entry {
     }
 
     // Serialize Entry to XML
-    public Element save(Document document) throws Exception {
+    public Element save(Document document) {
         Element docEntry = document.createElement("entry");
         Element field = document.createElement("key");
         field.setAttribute("value", key);

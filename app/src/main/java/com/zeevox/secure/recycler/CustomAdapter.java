@@ -14,12 +14,7 @@
 
 package com.zeevox.secure.recycler;
 
-import android.app.KeyguardManager;
-import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,32 +22,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.zeevox.secure.App;
-import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
+import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Encryptor;
 import com.zeevox.secure.cryptography.Entry;
 import com.zeevox.secure.ui.EditEntryActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
-import com.zeevox.secure.ui.dialog.CustomDimDialog;
+import com.zeevox.secure.ui.dialog.AuthenticationDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -61,14 +50,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private static final String TAG = "CustomAdapter";
     private final List<String> mDataSet;
     private RecyclerView mRecyclerView;
-    private AppCompatActivity activity;
+    private SecureAppCompatActivity activity;
 
     /**
      * Initialize the dataset of the Adapter.
      *
      * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
      */
-    public CustomAdapter(AppCompatActivity activity, String[] dataSet) {
+    public CustomAdapter(SecureAppCompatActivity activity, String[] dataSet) {
         this.activity = activity;
         mDataSet = new ArrayList<>(Arrays.asList(dataSet));
     }
@@ -121,26 +110,32 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder implements ActionMode.Callback {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements ActionMode.Callback, AuthenticationDialog.Callback {
         private final TextView textView;
         private ActionMode mActionMode;
-        private AppCompatActivity activity;
+        private SecureAppCompatActivity activity;
         private List<String> mDataSet;
         private RecyclerView mRecyclerView;
+        private Crypto crypto;
 
-        ViewHolder(View v, AppCompatActivity activity, List<String> dataSet, RecyclerView recyclerView) {
+        ViewHolder(View v, SecureAppCompatActivity activity, List<String> dataSet, RecyclerView recyclerView) {
             super(v);
 
             this.activity = activity;
             this.mDataSet = dataSet;
             this.mRecyclerView = recyclerView;
+            try {
+                crypto = new Crypto(activity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             textView = v.findViewById(R.id.textView);
 
             // Define click listener for the ViewHolder's View.
             v.setOnClickListener(v1 -> {
                 try {
-                    showMasterDialog(MASTER_DIALOG_KEY_INFO, getAdapterPosition());
+                    new AuthenticationDialog(activity, crypto, MASTER_DIALOG_KEY_INFO, getAdapterPosition(), this);
                     Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -182,7 +177,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             try {
-                mode.setTitle(Crypto.getEntries().getEntryAt(getAdapterPosition()).key);
+                mode.setTitle(crypto.getEntries().getEntryAt(getAdapterPosition()).key);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -195,7 +190,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             switch (item.getItemId()) {
                 case R.id.action_item_edit:
                     try {
-                        showMasterDialog(MASTER_DIALOG_EDIT_ENTRY, getAdapterPosition());
+                        new AuthenticationDialog(activity, crypto, MASTER_DIALOG_EDIT_ENTRY, getAdapterPosition(), this);
                         // Hide the CAB once action selected
                         mode.finish();
                     } catch (Exception e) {
@@ -204,7 +199,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     return true;
                 case R.id.action_item_delete:
                     try {
-                        showMasterDialog(MASTER_DIALOG_DELETE_ENTRY, getAdapterPosition());
+                        new AuthenticationDialog(activity, crypto, MASTER_DIALOG_DELETE_ENTRY, getAdapterPosition(), this);
                         Log.d(TAG, "Delete item with id " + getAdapterPosition());
                         // Hide the CAB once action selected
                         mode.finish();
@@ -227,141 +222,50 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             return textView;
         }
 
-        final PasswordsBottomModalSheet passwordsBottomModalSheet = new PasswordsBottomModalSheet();
-
         static final int MASTER_DIALOG_KEY_INFO = 1;
         static final int MASTER_DIALOG_EDIT_ENTRY = 2;
         static final int MASTER_DIALOG_DELETE_ENTRY = 3;
 
-        /**
-         * Master password dialog
-         */
-        private void showMasterDialog(final int command, final int adapterPosition) {
+        @Override
+        public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
             try {
-                Crypto.init(activity);
-                String securityLevel = PreferenceManager.getDefaultSharedPreferences(activity)
-                        .getString(Flags.SECURITY_LEVEL, "fingerprint");
-                if (App.masterKey != null && Crypto.verifyMasterPass(App.masterKey)
-                        && !Objects.equals(securityLevel, "password")) {
-                    if (!Objects.equals(securityLevel, "fingerprint") || true) {
-                        // Don't continue any further
-                        processMdgCommand(command, adapterPosition);
-                    } else {
-                        KeyguardManager keyguardManager = activity.getSystemService(KeyguardManager.class);
-                        Intent credentialsIntent;
-                        assert keyguardManager != null;
-                        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
-                        assert credentialsIntent != null;
-                        activity.startActivityForResult(credentialsIntent, 1043);
+                Entry entry = crypto.getEntries().getEntryAt(adapterPosition);
+
+                if (resultCode == AuthenticationDialog.RESULT_ACCEPT) {
+                    switch (requestCode) {
+                        case MASTER_DIALOG_KEY_INFO:
+                            String keyNotes = null;
+                            if (entry.notes != null) {
+                                keyNotes = Encryptor.decrypt(entry.notes, App.masterKey.toCharArray());
+                            }
+                            new PasswordsBottomModalSheet(activity.getSupportFragmentManager(), entry.key, Encryptor.decrypt(entry.name, App.masterKey.toCharArray()),
+                                    Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()), keyNotes);
+                            break;
+                        case MASTER_DIALOG_EDIT_ENTRY:
+                            Intent intent = new Intent(activity, EditEntryActivity.class);
+                            intent.putExtra("entryKey", entry.key);
+                            intent.putExtra("entryName", Encryptor.decrypt(entry.name, App.masterKey.toCharArray()));
+                            intent.putExtra("entryPass", Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()));
+                            if (entry.notes != null) {
+                                intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, App.masterKey.toCharArray()));
+                            }
+                            intent.putExtra("adapterPosition", adapterPosition);
+                            activity.startActivity(intent);
+                            break;
+                        case MASTER_DIALOG_DELETE_ENTRY:
+                            crypto.getEntries().removeEntryAt(getAdapterPosition());
+                            mDataSet.remove(getAdapterPosition());
+                            try {
+                                mRecyclerView.getAdapter().notifyItemRemoved(getAdapterPosition());
+                                mRecyclerView.getAdapter().notifyDataSetChanged();
+                            } catch (NullPointerException npe) {
+                                npe.printStackTrace();
+                            }
+                            break;
                     }
-                    return;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-
-            CustomDimDialog customDimDialog = new CustomDimDialog();
-            AppCompatDialog dialog = customDimDialog.dialog(activity, R.layout.dialog_master_key, false);
-            View alertLayout = customDimDialog.getAlertLayout();
-
-            // Find the input field
-            final TextInputEditText masterKeyInput = alertLayout.findViewById(R.id.dialog_master_password_input);
-
-            // Show the keyboard
-            masterKeyInput.requestFocus();
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
-            }
-
-            // Handle clicks on the "OK" button
-            alertLayout.findViewById(R.id.dialog_master_key_button_ok).setOnClickListener(view -> {
-                try {
-                    Crypto.init(activity);
-                    App.masterKey = Objects.requireNonNull(masterKeyInput.getText()).toString();
-                    // Verify that the password is correct
-                    if (Crypto.verifyMasterPass(App.masterKey)) {
-                        // Dismiss the dialog
-                        dialog.dismiss();
-                        // Reset attempts count
-                        App.attempts[0] = 0;
-                        // Show key info
-                        processMdgCommand(command, adapterPosition);
-                    } else {
-                        // Wrong password, show the dialog again with an e.
-                        final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
-                        masterKeyLayout.setErrorEnabled(true);
-                        masterKeyLayout.setError(activity.getString(R.string.error_wrong_master_pass));
-                        masterKeyInput.addTextChangedListener(new TextWatcher() {
-                            @Override
-                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                            }
-
-                            @Override
-                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                masterKeyLayout.setErrorEnabled(false);
-                            }
-
-                            @Override
-                            public void afterTextChanged(Editable s) {
-                            }
-                        });
-                        App.attempts[0] = App.attempts[0] + 1;
-                        // If more than three wrong attempts have been made, block the user.
-                        if (App.attempts[0] >= Flags.MAX_ATTEMPTS) {
-                            // Show an e as a toast message
-                            Toast.makeText(activity, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
-                            // Close ALL running activities of this app
-                            activity.finishAffinity();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    dialog.dismiss();
-                }
-            });
-
-            // Handle clicks on the "Cancel" button
-            alertLayout.findViewById(R.id.dialog_master_key_button_cancel).setOnClickListener(view -> dialog.dismiss());
-
-            // Show the dialog
-            dialog.show();
-        }
-
-        private void processMdgCommand(int command, int adapterPosition) throws Exception {
-            Entry entry = Crypto.getEntries().getEntryAt(adapterPosition);
-
-            switch (command) {
-                case MASTER_DIALOG_KEY_INFO:
-                    String keyNotes = null;
-                    if (entry.notes != null) {
-                        keyNotes = Encryptor.decrypt(entry.notes, App.masterKey.toCharArray());
-                    }
-                    passwordsBottomModalSheet.setKeyInfo(entry.key, Encryptor.decrypt(entry.name, App.masterKey.toCharArray()),
-                            Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()), keyNotes);
-                    passwordsBottomModalSheet.show(activity.getSupportFragmentManager(), "Password BottomSheet");
-                    break;
-                case MASTER_DIALOG_EDIT_ENTRY:
-                    Intent intent = new Intent(activity, EditEntryActivity.class);
-                    intent.putExtra("entryKey", entry.key);
-                    intent.putExtra("entryName", Encryptor.decrypt(entry.name, App.masterKey.toCharArray()));
-                    intent.putExtra("entryPass", Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()));
-                    if (entry.notes != null) {
-                        intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, App.masterKey.toCharArray()));
-                    }
-                    intent.putExtra("adapterPosition", adapterPosition);
-                    activity.startActivity(intent);
-                    break;
-                case MASTER_DIALOG_DELETE_ENTRY:
-                    Crypto.getEntries().removeEntryAt(getAdapterPosition());
-                    mDataSet.remove(getAdapterPosition());
-                    try {
-                        mRecyclerView.getAdapter().notifyItemRemoved(getAdapterPosition());
-                        mRecyclerView.getAdapter().notifyDataSetChanged();
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
-                    }
-                    break;
             }
         }
     }

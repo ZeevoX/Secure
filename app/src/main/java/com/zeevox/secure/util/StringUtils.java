@@ -39,7 +39,7 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String toHex(String s) throws Exception {
+    public static String toHex(String s) {
         StringBuilder sb = new StringBuilder();
         byte[] bytes = StringUtils.str2bytes(s);
         for (byte aByte : bytes) {
@@ -53,7 +53,7 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String fromHex(String s) throws Exception {
+    public static String fromHex(String s) {
         int n = s.length();
         byte[] bytes = new byte[n / 2];
         for (int i = 0; i < n; i += 2) {

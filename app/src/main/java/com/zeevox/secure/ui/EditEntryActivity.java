@@ -15,42 +15,44 @@
 package com.zeevox.secure.ui;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.zeevox.secure.App;
-import com.zeevox.secure.R;
-import com.zeevox.secure.core.SecureAppCompatActivity;
-import com.zeevox.secure.cryptography.Crypto;
-
-import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.zeevox.secure.App;
+import com.zeevox.secure.R;
+import com.zeevox.secure.core.SecureAppCompatActivity;
+import com.zeevox.secure.cryptography.Crypto;
+import com.zeevox.secure.cryptography.Entry;
+
+import java.util.Objects;
+
 public class EditEntryActivity extends SecureAppCompatActivity {
 
     // Identify the permissions request
     private static final int PERMISSIONS_REQUEST = 2302;
 
+    public static final String NEW_ENTRY = "new_entry";
+    public static final String ADAPTER_POSITION = "adapterPosition";
+
     private final String TAG = this.getClass().getSimpleName();
-    private TextInputLayout keyNameLayout;
     private TextInputEditText keyNameInput;
-    private TextInputLayout keyNotesLayout;
     private TextInputEditText keyNotesInput;
-    private TextInputLayout usernameLayout;
     private TextInputEditText usernameInput;
-    private TextInputLayout passwordLayout;
     private TextInputEditText passwordInput;
     private String masterKey;
 
@@ -60,12 +62,20 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     private String entryNotes;
     private int adapterPosition;
 
+    private Crypto crypto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Fetch the master key
         masterKey = getIntent().getStringExtra("MASTER_KEY");
+
+        try {
+            crypto = new Crypto(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Inflate the layout
         setContentView(R.layout.activity_edit_entry);
@@ -80,6 +90,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         } catch (NullPointerException npe) {
             Toast.makeText(this, R.string.error_occurred_miscellaneous, Toast.LENGTH_SHORT).show();
             npe.printStackTrace();
+            setResult(Activity.RESULT_CANCELED);
             finish();
         }
 
@@ -89,26 +100,26 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         }
 
         // Set up the input
-        keyNameLayout = findViewById(R.id.key_name_layout);
         keyNameInput = findViewById(R.id.key_name_input);
-        usernameLayout = findViewById(R.id.username_layout);
         usernameInput = findViewById(R.id.username_input);
-        passwordLayout = findViewById(R.id.password_layout);
         passwordInput = findViewById(R.id.password_input);
-        keyNotesLayout = findViewById(R.id.key_notes_layout);
         keyNotesInput = findViewById(R.id.key_notes_input);
 
-        // If editing (not creating new entry), get info.
-        entryName = getIntent().getStringExtra("entryName");
-        entryKey = getIntent().getStringExtra("entryKey");
-        entryPass = getIntent().getStringExtra("entryPass");
-        entryNotes = getIntent().getStringExtra("entryNotes");
-        adapterPosition = getIntent().getIntExtra("adapterPosition", -1);
 
-        keyNameInput.setText(entryKey);
-        usernameInput.setText(entryName);
-        passwordInput.setText(entryPass);
-        keyNotesInput.setText(entryNotes);
+        adapterPosition = getIntent().getIntExtra(ADAPTER_POSITION, -1);
+        // If editing (not creating new entry), get info.
+        if (adapterPosition != -1) {
+            Log.d(TAG, "Editing item with id " + adapterPosition);
+            entryName = getIntent().getStringExtra("entryName");
+            entryKey = getIntent().getStringExtra("entryKey");
+            entryPass = getIntent().getStringExtra("entryPass");
+            entryNotes = getIntent().getStringExtra("entryNotes");
+
+            keyNameInput.setText(entryKey);
+            usernameInput.setText(entryName);
+            passwordInput.setText(entryPass);
+            keyNotesInput.setText(entryNotes);
+        }
     }
 
     @Override
@@ -154,19 +165,27 @@ public class EditEntryActivity extends SecureAppCompatActivity {
 
     private void addEntryComplete() {
         try {
-            Crypto.init(EditEntryActivity.this);
-            if (entryName != null && adapterPosition != -1) {
-                Crypto.getEntries().removeEntryAt(adapterPosition);
-            }
+
 
             String keyNotes = null;
             if (!Objects.equals(keyNotesInput.getText().toString(), "")) {
                 keyNotes = keyNotesInput.getText().toString();
             }
-            Crypto.addEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
+
+            Entry entry = Crypto.newEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
                     passwordInput.getText().toString(), keyNotes, App.masterKey);
+
+            boolean newEntry = false;
+            if (entryName != null && adapterPosition != -1) {
+                crypto.getEntries().replaceEntryAt(adapterPosition, entry);
+            } else {
+                newEntry = true;
+                adapterPosition = crypto.getEntries().addEntrySorted(entry);
+            }
+            setResult(Activity.RESULT_OK, new Intent().putExtra(ADAPTER_POSITION, adapterPosition).putExtra(NEW_ENTRY, newEntry));
             finish();
         } catch (Exception e) {
+            setResult(Activity.RESULT_CANCELED);
             Snackbar.make(findViewById(R.id.root_new_entry),
                     "An entry with the name " + keyNameInput.getText().toString() + " already exists.",
                     Snackbar.LENGTH_LONG).show();

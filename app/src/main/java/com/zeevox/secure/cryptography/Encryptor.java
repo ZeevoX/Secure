@@ -16,9 +16,14 @@ package com.zeevox.secure.cryptography;
 
 import com.zeevox.secure.util.StringUtils;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -41,7 +46,7 @@ public class Encryptor {
     private static Cipher cipher;
     private static boolean initialized = false;
 
-    private static void initialize() throws Exception {
+    private static void initialize() throws NoSuchPaddingException, NoSuchAlgorithmException {
         if (!initialized) {
             pbeParamSpec = new PBEParameterSpec(salt, 20);
             secretKeyFactory = SecretKeyFactory.getInstance(algorithm);
@@ -50,11 +55,11 @@ public class Encryptor {
         }
     }
 
-    private static SecretKey getSecretKey(char[] password) throws Exception {
+    private static SecretKey getSecretKey(char[] password) throws InvalidKeySpecException {
         return secretKeyFactory.generateSecret(new PBEKeySpec(password));
     }
 
-    public static String encrypt(String s, char[] password) throws Exception {
+    public static String encrypt(String s, char[] password) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         initialize();
         cipher.init(Cipher.ENCRYPT_MODE,
                 getSecretKey(password),
@@ -62,8 +67,7 @@ public class Encryptor {
         return StringUtils.bytes2str(cipher.doFinal(StringUtils.str2bytes(s)));
     }
 
-    public static String decrypt(String c, char[] password)
-            throws Exception {
+    public static String decrypt(String c, char[] password) throws BadPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
         initialize();
         cipher.init(Cipher.DECRYPT_MODE,
                 getSecretKey(password),

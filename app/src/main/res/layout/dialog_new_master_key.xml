@@ -102,7 +102,7 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="@dimen/margin_normal"
-            android:text="IMPORT PASSWORDS"/>
+            android:text="Import passwords"/>
 
         <Button
             android:id="@+id/dialog_new_master_key_button_ok"

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -33,8 +34,13 @@ import com.zeevox.secure.R;
 
 public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
 
-    public PasswordsBottomModalSheet() {
+    public PasswordsBottomModalSheet(@NonNull FragmentManager fragmentManager, @NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword, @Nullable String keyNotes) {
         super();
+        this.entryName = entryName;
+        this.keyUsername = keyUsername;
+        this.keyPassword = keyPassword;
+        this.keyNotes = keyNotes;
+        show(fragmentManager, getClass().getSimpleName());
     }
 
     private String entryName;
@@ -42,11 +48,8 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
     private String keyPassword;
     private String keyNotes;
 
-    public void setKeyInfo(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword, @Nullable String keyNotes) {
-        this.entryName = entryName;
-        this.keyUsername = keyUsername;
-        this.keyPassword = keyPassword;
-        this.keyNotes = keyNotes;
+    public void setKeyInfo() {
+
     }
 
     private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {

@@ -15,6 +15,7 @@
 package com.zeevox.secure.core;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +28,8 @@ import com.zeevox.secure.R;
 
 @SuppressLint("Registered")
 public class SecureAppCompatActivity extends AppCompatActivity {
+
+    ResultListener callback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,5 +45,19 @@ public class SecureAppCompatActivity extends AppCompatActivity {
 
         // Don't show app snapshot in overview and don't allow screenshots
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callback.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void setCallback(ResultListener callback) {
+        this.callback = callback;
+    }
+
+    public interface ResultListener {
+        void onActivityResult(int requestCode, int resultCode, @Nullable Intent data);
     }
 }

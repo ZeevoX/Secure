@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -41,35 +42,56 @@ import com.google.android.material.snackbar.Snackbar;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.backup.BackupRestoreHelper;
+import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Entries;
+import com.zeevox.secure.ui.dialog.AuthenticationDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+public class SettingsFragment extends PreferenceFragmentCompat implements AuthenticationDialog.Callback {
 
     private static final int REQUEST_CODE_SIGN_IN = 2108;
     private static final int PERMISSIONS_REQUEST = 2550;
+    private static final int REQUEST_AUTHENTICATION = 6600;
     private final String TAG = getClass().getSimpleName();
     private SwitchPreferenceCompat backupRestorePreference;
+    private ListPreference securityLevelPreference;
+    private int seLevValue = 2;
     private BackupRestoreHelper backupRestoreHelper;
+    private Crypto crypto;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         try {
-            Crypto.init(getActivity());
+            crypto = new Crypto(getActivity());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         backupRestoreHelper = new BackupRestoreHelper(getActivity());
+
+        securityLevelPreference = findPreference(Flags.SECURITY_LEVEL);
+        List<String> seLevels = Arrays.asList(getResources().getStringArray(R.array.security_level_entries));
+        securityLevelPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            int valueIndex = seLevels.indexOf(newValue);
+            // Ask for the master password if the new security level is lower than the current one
+            if (seLevels.indexOf(securityLevelPreference.getValue()) > valueIndex) {
+                new AuthenticationDialog(((SecureAppCompatActivity) getActivity()), crypto, REQUEST_AUTHENTICATION, valueIndex, SettingsFragment.this, true);
+                return false;
+            } else {
+                return true;
+            }
+        });
 
         Preference exportPasswordsPreference = findPreference(Flags.EXPORT_PASSWORDS);
         exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
@@ -115,13 +137,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference deleteDbPreference = findPreference(Flags.CLEAR_DATABASE);
 
-        deleteDbPreference.setEnabled(Crypto.getFile().exists());
+        deleteDbPreference.setEnabled(crypto.getFile().exists());
         deleteDbPreference.setOnPreferenceClickListener(preference -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
             alertDialog.setTitle("Delete database?");
             alertDialog.setMessage("This will delete ALL passwords in the database, permanently. There is no way back after this! Are you sure you want to continue?");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "DELETE", (dialog, which) -> {
-                Crypto.getFile().delete();
+                crypto.getFile().delete();
                 preference.setEnabled(false);
                 dialog.dismiss();
             });
@@ -248,6 +270,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                     PERMISSIONS_REQUEST);
                         }).show();
             }
+        }
+    }
+
+    @Override
+    public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
+        if (requestCode == REQUEST_AUTHENTICATION && resultCode == AuthenticationDialog.RESULT_ACCEPT) {
+            securityLevelPreference.setValueIndex(adapterPosition);
         }
     }
 }
