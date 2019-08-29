@@ -31,7 +31,6 @@ import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -48,7 +47,7 @@ public class Entries {
 
     private final ArrayList<Entry> entries = new ArrayList<>();
 
-    Entries(Context context) throws ParserConfigurationException, IOException, TransformerException, SAXException {
+    public Entries(Context context) throws Exception {
         data = new File(context.getFilesDir(), FILENAME);
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         if (!data.exists()) {

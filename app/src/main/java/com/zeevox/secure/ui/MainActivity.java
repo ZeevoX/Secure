@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -31,7 +32,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
@@ -52,7 +52,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.zeevox.secure.BuildConfig;
-import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
@@ -63,43 +62,29 @@ import com.zeevox.secure.ui.dialog.AuthenticationDialog;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 
 import static com.zeevox.secure.App.masterKey;
 
 public class MainActivity extends SecureAppCompatActivity implements SearchView.OnQueryTextListener, AuthenticationDialog.Callback {
 
-    private static final int DATASET_COUNT = 60;
     // Identify the permissions request
     private static final int PERMISSIONS_REQUEST = 2302;
     private static final int READ_REQUEST_CODE = 7436;
-    public static final int EDIT_ENTRY_CODE = 8426;
+    public static final int REQUEST_EDIT_ENTRY = 8426;
     private static final int REQUEST_NEW_ENTRY = 4669;
 
     CoordinatorLayout layout;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private CustomAdapter mAdapter;
     private NavigationView navigationView;
     private Crypto crypto;
-    private String[] mDataSet;
     private LinearLayoutManager mLayoutManager;
     private boolean displayingDialog = false;
-
-    private static String generateRandomWord() {
-        Random random = new Random();
-        char[] word = new char[random.nextInt(8) + 3]; // words of length 3 through 10. (1 and 2 letter words are boring.)
-        for (int j = 0; j < word.length; j++) {
-            word[j] = (char) ('a' + random.nextInt(26));
-        }
-        return new String(word);
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -188,14 +173,25 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         navHeaderAppVersionText.setText(String.format(getString(R.string.nav_header_app_version), BuildConfig.VERSION_NAME));
     }
 
-    private void setupRecycler() throws Exception {
+    private void setupRecycler() {
         // Initialize dataset, this data would usually come
         // from a local content provider or remote server.
-        initDataset();
+        // If there's nothing in the password database, help the user get started
+        if (crypto.getEntries().getEntries().size() == 0 && crypto.getEntries().isEmpty() && !displayingDialog) {
+            // Create the intent
+            Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+            // Send the master key to the new entry activity too
+            newActivityIntent.putExtra("MASTER_KEY", masterKey);
+            newActivityIntent.putExtra("display_back_button", false);
+            // Start the EditEntryActivity
+            startActivityForResult(newActivityIntent, REQUEST_NEW_ENTRY);
+        }
 
         // Specify our CustomAdapter
-        mAdapter = new CustomAdapter(MainActivity.this, mDataSet);
+        mAdapter = new CustomAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
+
+        Log.d(getClass().getSimpleName(), "itemCount " + mAdapter.getItemCount());
 
         // Add item separators
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
@@ -250,37 +246,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Generates Strings for RecyclerView's adapter. This data would usually come
-     * from a local content provider or remote server.
-     */
-    private void initDataset() {
-        if (!Flags.SAMPLE_DATA) {
-            int numberOfEntries = crypto.getEntries().getEntries().size();
-            Entries mEntries = crypto.getEntries();
-            mDataSet = new String[numberOfEntries];
-            for (int i = 0; i < numberOfEntries; i++) {
-                mDataSet[i] = mEntries.getEntryAt(i).key;
-            }
-        } else {
-            mDataSet = new String[DATASET_COUNT];
-            for (int i = 0; i < DATASET_COUNT; i++) {
-                mDataSet[i] = generateRandomWord(); // "This is element #" + i;
-            }
-            Arrays.sort(mDataSet);
-        }
-        // If there's nothing in the password database, help the user get started
-        if (mDataSet.length == 0 && crypto.getEntries().isEmpty() && !displayingDialog) {
-            // Create the intent
-            Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-            // Send the master key to the new entry activity too
-            newActivityIntent.putExtra("MASTER_KEY", masterKey);
-            newActivityIntent.putExtra("display_back_button", false);
-            // Start the EditEntryActivity
-            startActivityForResult(newActivityIntent, EDIT_ENTRY_CODE);
-        }
-    }
-
     private void newMasterDialog() {
         displayingDialog = true;
 
@@ -312,7 +277,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                 newActivityIntent.putExtra("MASTER_KEY", masterKey);
                 newActivityIntent.putExtra("display_back_button", false);
                 // Start the EditEntryActivity
-                startActivityForResult(newActivityIntent, EDIT_ENTRY_CODE);
+                startActivityForResult(newActivityIntent, REQUEST_NEW_ENTRY);
             } else {
                 final TextInputLayout masterRepeatLayout = alertLayout.findViewById(R.id.dialog_repeat_master_password_layout);
                 masterRepeatLayout.setErrorEnabled(true);
@@ -380,84 +345,75 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
 
         super.onActivityResult(requestCode, resultCode, resultData);
 
-        switch (requestCode) {
-            case READ_REQUEST_CODE:
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case READ_REQUEST_CODE:
                     // The document selected by the user won't be returned in the intent.
                     // Instead, a URI to that document will be contained in the return intent
                     // provided to this method as a parameter.
                     // Pull that URI using resultData.getData().
                     Uri uri;
-                    if (resultData != null) {
-                        uri = resultData.getData();
-                        Log.i(getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
-                        //File from = new File(uri.toString());
-                        File destination = new File(getFilesDir(), Entries.FILENAME);
-                        ContentResolver resolver = getContentResolver();
-                        try {
-                            InputStream inputStream = resolver.openInputStream(uri);
-                            OutputStream outputStream = new FileOutputStream(destination);
-                            byte[] buffer = new byte[1024];
-                            int length;
-                            while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
-                                outputStream.write(buffer, 0, length);
-                            }
-
-                            outputStream.close();
-                            inputStream.close();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                    uri = resultData.getData();
+                    Log.i(getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
+                    //File from = new File(uri.toString());
+                    File destination = new File(getFilesDir(), Entries.FILENAME);
+                    ContentResolver resolver = getContentResolver();
+                    try {
+                        InputStream inputStream = resolver.openInputStream(uri);
+                        OutputStream outputStream = new FileOutputStream(destination);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = Objects.requireNonNull(inputStream).read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
                         }
-                        Log.i(getClass().getSimpleName(), "Importing passwords successful!");
-                        Snackbar.make(layout, "Passwords successfully imported", Snackbar.LENGTH_SHORT).show();
-                    }
-                }
-                break;
-            case 1042:
-                if (resultCode == RESULT_OK) {
-                    // Create the intent
-                    Intent newActivityIntent = new Intent(this, EditEntryActivity.class);
-                    newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    // Send the master key to the new entry activity too
-                    newActivityIntent.putExtra("MASTER_KEY", masterKey);
-                    // Start the EditEntryActivity
-                    startActivityForResult(newActivityIntent, EDIT_ENTRY_CODE);
-                } else {
-                    Toast.makeText(this, "Access denied, sorry.", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 1043:
-                if (resultCode == RESULT_OK) {
 
-                } else {
-                    Toast.makeText(this, "Access denied, sorry.", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case EDIT_ENTRY_CODE:
-                if (resultCode == Activity.RESULT_OK) {
-                    initDataset();
+                        outputStream.close();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Log.i(getClass().getSimpleName(), "Importing passwords successful!");
+                    Snackbar.make(layout, "Passwords successfully imported", Snackbar.LENGTH_SHORT).show();
+                    break;
+                case REQUEST_NEW_ENTRY:
                     int adapterPosition = resultData.getIntExtra(EditEntryActivity.ADAPTER_POSITION, -1);
                     if (adapterPosition == -1) {
                         Log.e(getClass().getSimpleName(), "Invalid adapter position");
                         break;
                     }
-                    if (resultData.getBooleanExtra(EditEntryActivity.NEW_ENTRY, true)) {
-                        mRecyclerView.getAdapter().notifyItemInserted(adapterPosition);
-                    } else {
-                        mRecyclerView.getAdapter().notifyItemChanged(adapterPosition);
+                    Log.d(getClass().getSimpleName(), "New item added with position  " + adapterPosition);
+                    try {
+                        new Entries(this).getEntries().size();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    mRecyclerView.getAdapter().notifyDataSetChanged();
-                }
-                break;
+
+                    mAdapter.refreshDataSet();
+                    mAdapter.notifyItemInserted(adapterPosition);
+                    mAdapter.notifyDataSetChanged();
+
+                    // Wait a bit before scrolling. Ideally we shouldn't use a specific delay time (TODO)
+                    new Handler().postDelayed(() -> mRecyclerView.smoothScrollToPosition(adapterPosition), 500);
+                    break;
+                case REQUEST_EDIT_ENTRY:
+                    int newAdapterPosition = resultData.getIntExtra(EditEntryActivity.ADAPTER_POSITION, -1);
+                    if (newAdapterPosition == -1) {
+                        Log.e(getClass().getSimpleName(), "Invalid adapter position");
+                        break;
+                    }
+                    int originalAdapterPosition = resultData.getIntExtra(EditEntryActivity.ORIGINAL_ADAPTER_POSITION, -1);
+                    mAdapter.refreshDataSet();
+                    if (originalAdapterPosition != -1) mAdapter.notifyItemRemoved(originalAdapterPosition);
+                    mAdapter.notifyItemInserted(newAdapterPosition);
+                    mAdapter.notifyDataSetChanged();
+
+                    // Wait a bit before scrolling. Ideally we shouldn't use a specific delay time (TODO)
+                    new Handler().postDelayed(() -> mRecyclerView.smoothScrollToPosition(newAdapterPosition), 500);
+                    break;
+            }
         }
 
-        if (requestCode == 1042) {
 
-        } else if (requestCode == 1043) {
-
-        }
     }
 
     private void showErrorSnackBar() {
@@ -507,7 +463,7 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                     // Send the master key to the new entry activity too
                     newActivityIntent.putExtra("MASTER_KEY", masterKey);
                     // Start the EditEntryActivity
-                    startActivity(newActivityIntent);
+                    startActivityForResult(newActivityIntent, REQUEST_NEW_ENTRY);
                     // Don't continue any further
                     break;
 

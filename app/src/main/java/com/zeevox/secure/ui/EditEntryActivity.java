@@ -14,10 +14,8 @@
 
 package com.zeevox.secure.ui;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,10 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -43,11 +38,8 @@ import java.util.Objects;
 
 public class EditEntryActivity extends SecureAppCompatActivity {
 
-    // Identify the permissions request
-    private static final int PERMISSIONS_REQUEST = 2302;
-
-    public static final String NEW_ENTRY = "new_entry";
     public static final String ADAPTER_POSITION = "adapterPosition";
+    public static final String ORIGINAL_ADAPTER_POSITION = "origAdapterPos";
 
     private final String TAG = this.getClass().getSimpleName();
     private TextInputEditText keyNameInput;
@@ -123,12 +115,6 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //new MainActivity().refreshRecyclerView();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_new_entry, menu);
@@ -142,22 +128,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_done_new_entry:
-                // Check application required permissions
-                if (ContextCompat.checkSelfPermission(EditEntryActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                        // Permission is not granted; request the permission
-                        ActivityCompat.requestPermissions(EditEntryActivity.this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                PERMISSIONS_REQUEST);
-
-                        // PERMISSIONS_REQUEST is an app-defined int constant.
-                        // The callback method gets the result of the request.
-
-                } else {
-                    // Permission has already been granted
-                    addEntryComplete();
-                }
+                addEntryComplete();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -175,14 +146,15 @@ public class EditEntryActivity extends SecureAppCompatActivity {
             Entry entry = Crypto.newEntry(keyNameInput.getText().toString(), usernameInput.getText().toString(),
                     passwordInput.getText().toString(), keyNotes, App.masterKey);
 
-            boolean newEntry = false;
             if (entryName != null && adapterPosition != -1) {
-                crypto.getEntries().replaceEntryAt(adapterPosition, entry);
-            } else {
-                newEntry = true;
-                adapterPosition = crypto.getEntries().addEntrySorted(entry);
+                crypto.getEntries().removeEntryAt(adapterPosition);
             }
-            setResult(Activity.RESULT_OK, new Intent().putExtra(ADAPTER_POSITION, adapterPosition).putExtra(NEW_ENTRY, newEntry));
+
+            int newAdapterPosition = crypto.getEntries().addEntrySorted(entry);
+
+            setResult(Activity.RESULT_OK, new Intent()
+                    .putExtra(ADAPTER_POSITION, newAdapterPosition)
+                    .putExtra(ORIGINAL_ADAPTER_POSITION, adapterPosition));
             finish();
         } catch (Exception e) {
             setResult(Activity.RESULT_CANCELED);
@@ -190,31 +162,6 @@ public class EditEntryActivity extends SecureAppCompatActivity {
                     "An entry with the name " + keyNameInput.getText().toString() + " already exists.",
                     Snackbar.LENGTH_LONG).show();
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay!
-                    addEntryComplete();
-
-                } else {
-                    // permission denied, boo!
-                    Snackbar.make(findViewById(R.id.root_new_entry), "Storage permission denied; cannot save.", Snackbar.LENGTH_LONG)
-                            .setAction("TRY AGAIN", view -> {
-                                // Permission is not granted; request the permission
-                                ActivityCompat.requestPermissions(EditEntryActivity.this,
-                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        PERMISSIONS_REQUEST);
-                            }).show();
-                }
-            }
         }
     }
 }

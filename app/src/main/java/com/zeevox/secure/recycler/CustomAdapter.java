@@ -34,32 +34,30 @@ import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.cryptography.Encryptor;
+import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.cryptography.Entry;
 import com.zeevox.secure.ui.EditEntryActivity;
+import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.ui.PasswordsBottomModalSheet;
 import com.zeevox.secure.ui.dialog.AuthenticationDialog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
  */
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
     private static final String TAG = "CustomAdapter";
-    private final List<String> mDataSet;
+    private Entries entries;
     private RecyclerView mRecyclerView;
     private SecureAppCompatActivity activity;
 
     /**
      * Initialize the dataset of the Adapter.
-     *
-     * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
      */
-    public CustomAdapter(SecureAppCompatActivity activity, String[] dataSet) {
+    public CustomAdapter(SecureAppCompatActivity activity) {
         this.activity = activity;
-        mDataSet = new ArrayList<>(Arrays.asList(dataSet));
+        refreshDataSet();
     }
 
     /**
@@ -84,7 +82,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.recycler_item, viewGroup, false);
 
-        return new ViewHolder(v, activity, mDataSet, mRecyclerView);
+        return new ViewHolder(v, activity, this);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -94,16 +92,24 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        viewHolder.getTextView().setText(mDataSet.get(position));
+        viewHolder.getTextView().setText(entries.getEntries().get(position).key);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        if (mDataSet == null) {
+        if (entries.getEntries() == null) {
             return 0;
         } else {
-            return mDataSet.size();
+            return entries.getEntries().size();
+        }
+    }
+
+    public void refreshDataSet() {
+        try {
+            entries = new Entries(activity);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -114,16 +120,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         private final TextView textView;
         private ActionMode mActionMode;
         private SecureAppCompatActivity activity;
-        private List<String> mDataSet;
-        private RecyclerView mRecyclerView;
+        private ArrayList<Entry> mDataSet;
+        private CustomAdapter mAdapter;
         private Crypto crypto;
 
-        ViewHolder(View v, SecureAppCompatActivity activity, List<String> dataSet, RecyclerView recyclerView) {
+        ViewHolder(View v, SecureAppCompatActivity activity, CustomAdapter adapter) {
             super(v);
 
             this.activity = activity;
-            this.mDataSet = dataSet;
-            this.mRecyclerView = recyclerView;
+            try {
+                this.mDataSet = new Entries(activity).getEntries();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            this.mAdapter = adapter;
             try {
                 crypto = new Crypto(activity);
             } catch (Exception e) {
@@ -134,6 +144,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
             // Define click listener for the ViewHolder's View.
             v.setOnClickListener(v1 -> {
+                if (mActionMode != null) mActionMode.finish();
                 try {
                     new AuthenticationDialog(activity, crypto, MASTER_DIALOG_KEY_INFO, getAdapterPosition(), this);
                     Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
@@ -250,14 +261,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                                 intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, App.masterKey.toCharArray()));
                             }
                             intent.putExtra("adapterPosition", adapterPosition);
-                            activity.startActivity(intent);
+                            activity.startActivityForResult(intent, MainActivity.REQUEST_EDIT_ENTRY);
                             break;
                         case MASTER_DIALOG_DELETE_ENTRY:
                             crypto.getEntries().removeEntryAt(getAdapterPosition());
-                            mDataSet.remove(getAdapterPosition());
                             try {
-                                mRecyclerView.getAdapter().notifyItemRemoved(getAdapterPosition());
-                                mRecyclerView.getAdapter().notifyDataSetChanged();
+                                mAdapter.refreshDataSet();
+                                mAdapter.notifyItemRemoved(getAdapterPosition());
+                                mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
                             } catch (NullPointerException npe) {
                                 npe.printStackTrace();
                             }
