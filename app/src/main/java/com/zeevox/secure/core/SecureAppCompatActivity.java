@@ -50,7 +50,7 @@ public class SecureAppCompatActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callback.onActivityResult(requestCode, resultCode, data);
+        if (callback != null) callback.onActivityResult(requestCode, resultCode, data);
     }
 
     public void setCallback(ResultListener callback) {

@@ -112,9 +112,8 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
             crypto = new Crypto(this);
             if (crypto.getEntries().isEmpty()) {
                 newMasterDialog();
-            } else {
-                setupRecycler();
             }
+            setupRecycler();
         } catch (Exception e) {
             e.printStackTrace();
             showErrorSnackBar();

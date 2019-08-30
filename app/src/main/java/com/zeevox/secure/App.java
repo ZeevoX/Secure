@@ -59,7 +59,13 @@ public class App extends SecureAppCompatActivity implements AuthenticationDialog
         }
 
         try {
-            new AuthenticationDialog(this, new Crypto(this), AUTHENTICATION_REQUEST, this);
+            Crypto crypto = new Crypto(this);
+            if (!crypto.getEntries().isEmpty())
+                new AuthenticationDialog(this, crypto, AUTHENTICATION_REQUEST, this);
+            else {
+                startActivity(new Intent(App.this, MainActivity.class));
+                finish();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
