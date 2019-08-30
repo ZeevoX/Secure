@@ -25,10 +25,10 @@ import java.util.Objects;
 
 public class AuthenticationDialog implements SecureAppCompatActivity.ResultListener {
 
-    public static final int RESULT_REJECT = 0;
+    private static final int RESULT_REJECT = 0;
     public static final int RESULT_ACCEPT = 1;
 
-    public static final int CREDENTIALS_RESULT = 733;
+    private static final int CREDENTIALS_RESULT = 733;
 
     private Callback callback;
 
@@ -40,7 +40,7 @@ public class AuthenticationDialog implements SecureAppCompatActivity.ResultListe
     }
 
     public AuthenticationDialog(@NonNull SecureAppCompatActivity activity, @NonNull Crypto crypto, int requestCode, int adapterPosition, @NonNull Callback callback) {
-        new AuthenticationDialog(activity, crypto, requestCode,adapterPosition, callback, false);
+        new AuthenticationDialog(activity, crypto, requestCode, adapterPosition, callback, false);
     }
 
     public AuthenticationDialog(@NonNull SecureAppCompatActivity activity, @NonNull Crypto crypto, int requestCode, int adapterPosition, @NonNull Callback callback, boolean alwaysPassword) {

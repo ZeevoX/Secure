@@ -16,15 +16,15 @@ package com.zeevox.secure.core;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import androidx.annotation.RequiresApi;
-
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class PasswordGenerator {
+class PasswordGenerator {
 
     private final Stream<String> numbers = Stream.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
     private final Stream<String> lettersLowercase = Stream.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");

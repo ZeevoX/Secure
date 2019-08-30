@@ -28,7 +28,6 @@ import com.zeevox.secure.BuildConfig;
 import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.ui.FeedbackActivity;
-import com.zeevox.secure.ui.PassgenActivity;
 
 public class SettingsActivity extends SecureAppCompatActivity {
     @Override
@@ -60,9 +59,6 @@ public class SettingsActivity extends SecureAppCompatActivity {
                     switch (menuItem.getItemId()) {
                         case R.id.nav_home:
                             finish();
-                            break;
-                        case R.id.nav_passgen:
-                            startActivity(new Intent(SettingsActivity.this, PassgenActivity.class));
                             break;
                         case R.id.nav_help:
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://zeevox.net/secure/")));

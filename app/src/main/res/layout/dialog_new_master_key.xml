@@ -15,7 +15,6 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root_dialog_new_master_key"
     style="@style/Widget.Secure.Dialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,7 +42,6 @@
         android:textAppearance="@style/TextAppearance.Secure.DialogContent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/dialog_new_master_password_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -102,7 +100,7 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="@dimen/margin_normal"
-            android:text="Import passwords"/>
+            android:text="@string/import_passwords"/>
 
         <Button
             android:id="@+id/dialog_new_master_key_button_ok"

@@ -161,7 +161,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         setDividerHeight(0);
     }
 
-    public boolean exportPasswords() {
+    private boolean exportPasswords() {
         Uri uri = Uri.fromFile(new File(getActivity().getFilesDir(), Entries.FILENAME));
         Log.i(this.getClass().getSimpleName(), "Uri: " + Objects.requireNonNull(uri).toString());
         File destination = new File(Environment.getExternalStorageDirectory(), Entries.FILENAME);
@@ -239,12 +239,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        switch (requestCode) {
-            case REQUEST_CODE_SIGN_IN:
-                if (resultCode == Activity.RESULT_OK && resultData != null) {
-                    handleSignInResult(resultData);
-                }
-                break;
+        if (requestCode == REQUEST_CODE_SIGN_IN) {
+            if (resultCode == Activity.RESULT_OK && resultData != null) {
+                handleSignInResult(resultData);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, resultData);

@@ -2,10 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zeevox.secure">
 
-    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- Internet permission is necessary for Google Drive backup, nothing else -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -77,16 +75,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.zeevox.secure.ui.MainActivity" />
-        </activity>
-        <activity
-            android:name=".ui.PassgenActivity"
-            android:label="Generate password"
-            android:parentActivityName=".ui.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.ALTERNATIVE" />
-            </intent-filter>
         </activity>
     </application>
 

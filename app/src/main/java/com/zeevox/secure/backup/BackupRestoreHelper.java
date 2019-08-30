@@ -23,19 +23,19 @@ public class BackupRestoreHelper {
 
     public final static int REQUEST_CODE_SIGN_IN = 2208;
     private final String TAG = getClass().getSimpleName();
-    private Activity context;
+    private final Activity context;
     private DriveServiceHelper mDriveServiceHelper;
-    private GoogleSignInClient mGoogleSignInClient;
-    private GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-            .build();
-    private GoogleSignInAccount googleAccount;
-    private SharedPreferences preferences;
+    private final GoogleSignInClient mGoogleSignInClient;
+    private final GoogleSignInAccount googleAccount;
+    private final SharedPreferences preferences;
 
     public BackupRestoreHelper(Activity activity) {
         this.context = activity;
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                .build();
         mGoogleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
         googleAccount = GoogleSignIn.getLastSignedInAccount(context);
     }

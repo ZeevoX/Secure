@@ -5,17 +5,16 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.zeevox.secure.Flags;
-
-import java.util.Objects;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
+
+import com.zeevox.secure.Flags;
+
+import java.util.Objects;
 
 public class CustomDimDialog {
     private View alertLayout;
@@ -24,16 +23,13 @@ public class CustomDimDialog {
         // Create a dialog requesting the master password
         LayoutInflater inflater = activity.getLayoutInflater();
 
-        // Create a null parent since there really is no parent - this is a dialog!
-        final ViewGroup nullParent = null;
-
         // Create the dialog
         final AppCompatDialog dialog = new AppCompatDialog(activity);
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         // Inflate the elements of the dialog
-        alertLayout = inflater.inflate(layout, nullParent, false);
+        alertLayout = inflater.inflate(layout, null, false);
         dialog.setContentView(alertLayout);
 
         // Get the dialog window to prevent repeating dialog.getWindow() each time.

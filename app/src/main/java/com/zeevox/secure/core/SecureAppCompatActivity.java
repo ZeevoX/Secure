@@ -29,7 +29,7 @@ import com.zeevox.secure.R;
 @SuppressLint("Registered")
 public class SecureAppCompatActivity extends AppCompatActivity {
 
-    ResultListener callback;
+    private ResultListener callback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

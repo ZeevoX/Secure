@@ -18,12 +18,12 @@
         android:id="@+id/action_item_edit"
         android:enabled="true"
         android:icon="@drawable/ic_edit"
-        android:title="Edit"
+        android:title="@string/action_edit"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_item_delete"
         android:enabled="true"
         android:icon="@drawable/ic_delete"
-        android:title="Delete"
+        android:title="@string/action_delete"
         app:showAsAction="ifRoom" />
 </menu>

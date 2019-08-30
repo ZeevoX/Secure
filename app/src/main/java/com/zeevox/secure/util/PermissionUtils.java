@@ -20,13 +20,16 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
+
 import com.zeevox.secure.R;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class for access to runtime permissions.
@@ -44,7 +47,7 @@ public class PermissionUtils {
 
     public static void requestPermissions(AppCompatActivity activity, int requestId,
                                           String[] permissions, boolean finishActivity) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[permissions.length-1])) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[permissions.length - 1])) {
             // Display a dialog with rationale.
             PermissionUtils.RationaleDialog.newInstance(requestId, finishActivity)
                     .show(activity.getSupportFragmentManager(), "dialog");
@@ -105,7 +108,7 @@ public class PermissionUtils {
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog) {
+        public void onDismiss(@NotNull DialogInterface dialog) {
             super.onDismiss(dialog);
             if (mFinishActivity) {
                 Toast.makeText(getActivity(), R.string.permission_storage_required_toast,
@@ -176,7 +179,7 @@ public class PermissionUtils {
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog) {
+        public void onDismiss(@NotNull DialogInterface dialog) {
             super.onDismiss(dialog);
             if (mFinishActivity) {
                 Toast.makeText(getActivity(),

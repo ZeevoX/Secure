@@ -75,12 +75,4 @@ public class Encryptor {
         return StringUtils.bytes2str(cipher.doFinal(StringUtils.str2bytes(c)));
     }
 
-    public static String encryptAes256(String c, char[] password) {
-        try {
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

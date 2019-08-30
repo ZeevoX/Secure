@@ -46,12 +46,8 @@ public class EditEntryActivity extends SecureAppCompatActivity {
     private TextInputEditText keyNotesInput;
     private TextInputEditText usernameInput;
     private TextInputEditText passwordInput;
-    private String masterKey;
 
     private String entryName;
-    private String entryKey;
-    private String entryPass;
-    private String entryNotes;
     private int adapterPosition;
 
     private Crypto crypto;
@@ -61,7 +57,7 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Fetch the master key
-        masterKey = getIntent().getStringExtra("MASTER_KEY");
+        String masterKey = getIntent().getStringExtra("MASTER_KEY");
 
         try {
             crypto = new Crypto(this);
@@ -103,9 +99,9 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         if (adapterPosition != -1) {
             Log.d(TAG, "Editing item with id " + adapterPosition);
             entryName = getIntent().getStringExtra("entryName");
-            entryKey = getIntent().getStringExtra("entryKey");
-            entryPass = getIntent().getStringExtra("entryPass");
-            entryNotes = getIntent().getStringExtra("entryNotes");
+            String entryKey = getIntent().getStringExtra("entryKey");
+            String entryPass = getIntent().getStringExtra("entryPass");
+            String entryNotes = getIntent().getStringExtra("entryNotes");
 
             keyNameInput.setText(entryKey);
             usernameInput.setText(entryName);
@@ -126,10 +122,8 @@ public class EditEntryActivity extends SecureAppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            case R.id.action_done_new_entry:
-                addEntryComplete();
-                break;
+        if (item.getItemId() == R.id.action_done_new_entry) {
+            addEntryComplete();
         }
         return super.onOptionsItemSelected(item);
     }

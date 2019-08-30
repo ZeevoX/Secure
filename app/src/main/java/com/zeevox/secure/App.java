@@ -35,15 +35,11 @@ public class App extends SecureAppCompatActivity implements AuthenticationDialog
 
     // Total number of attempts in the application
     public static final int[] attempts = {0};
-
+    // Identify the permissions request
+    private static final int PERMISSIONS_REQUEST = 2302;
+    private static final int AUTHENTICATION_REQUEST = 3323;
     // MasterKey in memory
     public static String masterKey = null;
-
-    // Identify the permissions request
-    public static final int PERMISSIONS_REQUEST = 2302;
-
-    public static final int AUTHENTICATION_REQUEST = 3323;
-
     private BackupRestoreHelper backupRestoreHelper;
 
     @Override
@@ -73,7 +69,7 @@ public class App extends SecureAppCompatActivity implements AuthenticationDialog
      * Requests the storage permission. If a rationale with an additional explanation should
      * be shown to the user, displays a dialog that triggers the request.
      */
-    public void requestStoragePermission(int requestCode) {
+    private void requestStoragePermission(int requestCode) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) ||
                 ActivityCompat.shouldShowRequestPermissionRationale(this,

@@ -15,13 +15,11 @@
   ~ limitations under the License.
   -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid
-        android:color="@color/white" />
-    <corners
-        android:radius="@dimen/dialog_rounded_corner" />
+    <corners android:radius="@dimen/dialog_rounded_corner" />
     <padding
         android:bottom="@dimen/spacing_micro"
         android:left="@dimen/spacing_micro"
         android:right="@dimen/spacing_micro"
         android:top="@dimen/spacing_micro" />
+    <solid android:color="@color/white" />
 </shape>

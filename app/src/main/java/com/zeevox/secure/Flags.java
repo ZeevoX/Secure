@@ -17,9 +17,9 @@ package com.zeevox.secure;
 @SuppressWarnings({"PointlessBooleanExpression", "WeakerAccess"})
 public class Flags {
     public static final int MAX_ATTEMPTS = 3;
-//    public static final String ASK_MASTER_PASS_EACH_TIME = "master_pass_each_time";
+    //    public static final String ASK_MASTER_PASS_EACH_TIME = "master_pass_each_time";
     public static final String CLEAR_DATABASE = "delete_database";
-//    public static final String ENABLE_APPLICATION_UNLOCK = "application_unlock";
+    //    public static final String ENABLE_APPLICATION_UNLOCK = "application_unlock";
     public static final String SECURITY_LEVEL = "security_level";
     public static final String EXPORT_PASSWORDS = "export_passwords";
     public static final String BACKUP_RESTORE = "google_drive_backup";

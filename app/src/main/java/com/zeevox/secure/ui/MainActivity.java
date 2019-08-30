@@ -26,7 +26,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,13 +71,13 @@ import static com.zeevox.secure.App.masterKey;
 
 public class MainActivity extends SecureAppCompatActivity implements SearchView.OnQueryTextListener, AuthenticationDialog.Callback {
 
+    public static final int REQUEST_EDIT_ENTRY = 8426;
     // Identify the permissions request
     private static final int PERMISSIONS_REQUEST = 2302;
     private static final int READ_REQUEST_CODE = 7436;
-    public static final int REQUEST_EDIT_ENTRY = 8426;
     private static final int REQUEST_NEW_ENTRY = 4669;
 
-    CoordinatorLayout layout;
+    private CoordinatorLayout layout;
     private RecyclerView mRecyclerView;
     private CustomAdapter mAdapter;
     private NavigationView navigationView;
@@ -146,9 +145,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                     mDrawerLayout.closeDrawers();
 
                     switch (menuItem.getItemId()) {
-                        case R.id.nav_passgen:
-                            startActivity(new Intent(MainActivity.this, PassgenActivity.class));
-                            break;
                         case R.id.nav_settings:
                             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                             break;
@@ -226,26 +222,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-//        switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                startActivity(new Intent(this, com.zeevox.secure.settings.SettingsActivity.class));
-//                break;
-//        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void newMasterDialog() {
         displayingDialog = true;
 
@@ -256,13 +232,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         // Find the input field
         final TextInputEditText masterKeyInput = alertLayout.findViewById(R.id.dialog_new_master_password_input);
         final TextInputEditText masterKeyRepeat = alertLayout.findViewById(R.id.dialog_repeat_master_password_input);
-
-        // Show the keyboard
-        /*masterKeyInput.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.showSoftInput(masterKeyInput, InputMethodManager.SHOW_FORCED);
-        }*/
 
         alertLayout.findViewById(R.id.dialog_new_master_key_button_ok).setOnClickListener(view -> {
             if (Objects.equals(masterKeyInput.getText().toString(), masterKeyRepeat.getText().toString())) {
@@ -403,7 +372,8 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
                     }
                     int originalAdapterPosition = resultData.getIntExtra(EditEntryActivity.ORIGINAL_ADAPTER_POSITION, -1);
                     mAdapter.refreshDataSet();
-                    if (originalAdapterPosition != -1) mAdapter.notifyItemRemoved(originalAdapterPosition);
+                    if (originalAdapterPosition != -1)
+                        mAdapter.notifyItemRemoved(originalAdapterPosition);
                     mAdapter.notifyItemInserted(newAdapterPosition);
                     mAdapter.notifyDataSetChanged();
 
@@ -439,7 +409,8 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         Log.d(getClass().getSimpleName(), "onResume called");
         try {
             navigationView.setCheckedItem(R.id.nav_home);
-        } catch (NullPointerException npe) {}
+        } catch (NullPointerException npe) {
+        }
         super.onResume();
     }
 
@@ -456,17 +427,13 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
     @Override
     public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
         if (resultCode == AuthenticationDialog.RESULT_ACCEPT) {
-            switch (requestCode) {
-                case REQUEST_NEW_ENTRY:
-                    // Create the intent
-                    Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
-                    // Send the master key to the new entry activity too
-                    newActivityIntent.putExtra("MASTER_KEY", masterKey);
-                    // Start the EditEntryActivity
-                    startActivityForResult(newActivityIntent, REQUEST_NEW_ENTRY);
-                    // Don't continue any further
-                    break;
-
+            if (requestCode == REQUEST_NEW_ENTRY) {// Create the intent
+                Intent newActivityIntent = new Intent(MainActivity.this, EditEntryActivity.class);
+                // Send the master key to the new entry activity too
+                newActivityIntent.putExtra("MASTER_KEY", masterKey);
+                // Start the EditEntryActivity
+                startActivityForResult(newActivityIntent, REQUEST_NEW_ENTRY);
+                // Don't continue any further
             }
         }
     }

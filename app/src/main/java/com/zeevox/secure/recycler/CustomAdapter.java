@@ -49,8 +49,7 @@ import java.util.ArrayList;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
     private static final String TAG = "CustomAdapter";
     private Entries entries;
-    private RecyclerView mRecyclerView;
-    private SecureAppCompatActivity activity;
+    private final SecureAppCompatActivity activity;
 
     /**
      * Initialize the dataset of the Adapter.
@@ -71,7 +70,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        mRecyclerView = recyclerView;
     }
 
     // Create new views (invoked by the layout manager)
@@ -117,11 +115,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
     public static class ViewHolder extends RecyclerView.ViewHolder implements ActionMode.Callback, AuthenticationDialog.Callback {
+        static final int MASTER_DIALOG_KEY_INFO = 1;
+        static final int MASTER_DIALOG_EDIT_ENTRY = 2;
+        static final int MASTER_DIALOG_DELETE_ENTRY = 3;
         private final TextView textView;
         private ActionMode mActionMode;
-        private SecureAppCompatActivity activity;
-        private ArrayList<Entry> mDataSet;
-        private CustomAdapter mAdapter;
+        private final SecureAppCompatActivity activity;
+        private final CustomAdapter mAdapter;
         private Crypto crypto;
 
         ViewHolder(View v, SecureAppCompatActivity activity, CustomAdapter adapter) {
@@ -129,7 +129,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
             this.activity = activity;
             try {
-                this.mDataSet = new Entries(activity).getEntries();
+                ArrayList<Entry> mDataSet = new Entries(activity).getEntries();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -232,10 +232,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         TextView getTextView() {
             return textView;
         }
-
-        static final int MASTER_DIALOG_KEY_INFO = 1;
-        static final int MASTER_DIALOG_EDIT_ENTRY = 2;
-        static final int MASTER_DIALOG_DELETE_ENTRY = 3;
 
         @Override
         public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {

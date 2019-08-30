@@ -20,20 +20,15 @@
 
     <color name="secure_primary">#6370FF</color>
     <color name="secure_primary_dark">#343EB2</color>
-    <color name="secure_primary_light">#7D88FF</color>
     <color name="secure_accent">#FFE06D</color>
     <color name="secure_accent_dark">#B29322</color>
 
-    <color name="warning_color">#f4511e</color>
-    <color name="hint_color">#42000000</color>
-    <color name="success_color">#009688</color>
     <color name="text_color_tertiary">#dadce0</color>
 
-    <color name="status_bar_icon_light">#FFFFFF</color>
     <color name="status_bar_icon_dark">#99000000</color>
     <color name="status_bar_icon_color">@color/status_bar_icon_dark</color>
 
-    <color name="scrim">#33000000</color> <!-- 20% black -->
+    <!-- 20% black -->
     <color name="highlight_light">#33ffffff</color> <!-- 20% white -->
     <color name="white">#ffffffff</color>
 

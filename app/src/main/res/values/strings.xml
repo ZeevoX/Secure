@@ -12,14 +12,10 @@
   ~ permissions and limitations under the License.
   -->
 <resources>
-    <string name="action_add">ADD</string>
-    <string name="action_cancel">@android:string/cancel</string>
-    <string name="action_ok">@android:string/ok</string>
 
     <string name="app_name" translatable="false">Secure</string>
     <string name="app_name_permanent" translatable="false">Secure</string>
 
-    <string name="dialog_master_pass_desc">To add, edit or delete an entry in your password database, you must enter the master password.</string>
     <string name="dialog_master_pass_title">Enter master password</string>
     <string name="dialog_new_master_pass_desc">To use the Secure app, you need to create a master password that will encrypt all other passwords.</string>
     <string name="dialog_new_master_pass_input_hint">Enter password</string>
@@ -38,15 +34,10 @@
     <string name="input_hint_password">Password</string>
     <string name="input_hint_username">Username</string>
 
-    <string name="notification_channel_autobackup_description">Be notified when your passwords have been either uploaded or restored from the cloud.</string>
-    <string name="notification_channel_autobackup_title">Auto-backup</string>
-
     <string name="permission_storage_denied">This app requires the storage permission to access your password database. Please try again and grant access to your internal storage.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Secure\'.</string>
     <string name="permission_storage_rationale">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="permission_storage_required_toast">The storage permission is required for this app.</string>
 
-    <string name="pref_master_pass_each_time_desc">Request the master password every time.</string>
-    <string name="pref_master_pass_each_time_title">Always ask for master password</string>
     <string name="pref_set_encryption_algorithm_title">Set encryption algorithm</string>
     <string-array name="pref_set_encryption_algorithm_titles">
         <item>MD5 - PKCS #5</item>
@@ -56,61 +47,18 @@
         <item>0</item>
         <item>1</item>
     </string-array>
-    <string-array name="pref_backup_titles">
-        <item>Disabled</item>
-        <item>Manual</item>
-        <item>Auto (recommended)</item>
-        <item>Daily</item>
-        <item>Weekly</item>
-    </string-array>
-    <string-array name="pref_backup_values">
-        <item>off</item>
-        <item>manual</item>
-        <item>auto</item>
-        <item>daily</item>
-        <item>weekly</item>
-    </string-array>
-
-    <string name="sample_rv_text" translatable="false">Element</string>
 
     <string name="title_activity_new_entry">Add a new entry</string>
     <string name="title_activity_settings">Settings</string>
     <string name="nav_header_app_version">Version %s</string>
 
-    <string name="use_password">Use password</string>
-    <string name="sign_in">Sign in</string>
-    <string name="ok">OK</string>
-    <string name="password">Password</string>
-    <string name="fingerprint_description">Confirm fingerprint to continue</string>
-    <string name="fingerprint_hint">Touch sensor</string>
-    <string name="password_description">Enter your store password to continue</string>
-    <string name="purchase">Purchase</string>
-    <string name="purchase_not_invalidated">Purchase not invalidated</string>
-    <string name="purchase_button_not_invalidated_description">
-        You can proceed to purchase with this button \n even if a new fingerprint is enrolled
-    </string>
-    <string name="fingerprint_not_recognized">Fingerprint not recognized. Try again</string>
-    <string name="fingerprint_success">Fingerprint recognized</string>
-    <string name="item_title">White Mesh Pluto Backpack</string>
-    <string name="item_price">$62.68</string>
-    <string name="item_description">Mesh backpack in white. Black textile trim throughout.</string>
-    <string name="purchase_done">Purchase successful</string>
-    <string name="new_fingerprint_enrolled_description">A new fingerprint was added to this device, so your password is required.</string>
-    <string name="use_fingerprint_in_future">Use fingerprint in the future</string>
-    <string name="use_fingerprint_to_authenticate_title">Use fingerprint to authenticate</string>
-    <string name="use_fingerprint_to_authenticate_key">use_fingerprint_to_authenticate_key</string>
-    <string name="description_bugdroid_icon">Android bugdroid image</string>
-    <string name="description_fingerprint_icon">Fingerprint icon</string>
     <string name="nav_dest_home">Home</string>
-    <string name="nav_dest_passgen">Generate password</string>
     <string name="nav_dest_settings">Settings</string>
     <string name="nav_dest_help">About</string>
     <string name="nav_dest_send_feedback">Send feedback</string>
     <string name="nav_dest_tos">Terms &amp; Privacy Policy</string>
 
     <string name="action_send_feedback">Send feedback</string>
-    <string name="feedback_name_hint">Your name…</string>
-    <string name="feedback_email_hint">Your email address…</string>
     <string name="feedback_hint_issue_title">Issue title</string>
     <string name="feedback_hint_reproduction_steps">Reproduction steps</string>
     <string name="feedback_hint_expected_result">Expected result</string>
@@ -146,5 +94,9 @@
     </string-array>
 
     <string name="google_backup_friendly_name">Secure - Password Database</string>
+    <string name="import_passwords">Import passwords</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_store">Sort</string>
 
 </resources>

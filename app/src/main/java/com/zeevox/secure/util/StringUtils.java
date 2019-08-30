@@ -18,10 +18,10 @@ public class StringUtils {
 
     // NB: due to the fact that not always "new String (s.getBytes()).equals (s)"
     // I had to resort to these conversion routines:
-    public static byte[] str2bytes (String s) {
+    public static byte[] str2bytes(String s) {
         byte[] bytes = new byte[s.length() * 2];
         for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt (i);
+            char ch = s.charAt(i);
             // little-endian
             bytes[2 * i] = (byte) (ch & 0xFF);
             bytes[2 * i + 1] = (byte) (ch >> 8);
@@ -29,12 +29,12 @@ public class StringUtils {
         return bytes;
     }
 
-    public static String bytes2str (byte[] bytes) {
+    public static String bytes2str(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         // NB: & 0xFF is necessary to get rid of the sign extension
         for (int i = 0; i < bytes.length; i += 2) {
             char ch = (char) ((bytes[i + 1] & 0xFF) << 8 | (bytes[i] & 0xFF));
-            sb.append (ch);
+            sb.append(ch);
         }
         return sb.toString();
     }

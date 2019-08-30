@@ -14,26 +14,18 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group
-        android:id="@+id/nav_group_destinations"
-        android:checkableBehavior="single">
+    <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
             android:checked="true"
             android:icon="@drawable/ic_home"
             android:title="@string/nav_dest_home" />
         <item
-            android:id="@+id/nav_passgen"
-            android:icon="@drawable/ic_key"
-            android:title="@string/nav_dest_passgen" />
-        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/nav_dest_settings" />
     </group>
-    <group
-        android:id="@+id/nav_group_customer"
-        android:checkableBehavior="none">
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_help"
             android:title="@string/nav_dest_help" />

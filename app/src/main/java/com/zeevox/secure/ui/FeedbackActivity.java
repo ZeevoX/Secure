@@ -13,6 +13,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.zeevox.secure.BuildConfig;
@@ -20,10 +24,6 @@ import com.zeevox.secure.R;
 import com.zeevox.secure.ui.dialog.CustomDimDialog;
 
 import java.util.Objects;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDialog;
-import androidx.appcompat.widget.Toolbar;
 
 public class FeedbackActivity extends AppCompatActivity {
 
@@ -172,7 +172,7 @@ public class FeedbackActivity extends AppCompatActivity {
                 });
     }
 
-    public boolean validateIssueTitle() {
+    private boolean validateIssueTitle() {
         final TextInputLayout issueTitleInputLayout = findViewById(R.id.feedback_issue_input_layout);
         final TextInputEditText issueTitleInput = findViewById(R.id.feedback_issue_input);
         try {
@@ -192,7 +192,7 @@ public class FeedbackActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean validateReproductionSteps() {
+    private boolean validateReproductionSteps() {
         final TextInputLayout issueReproduceInputLayout =
                 findViewById(R.id.feedback_issue_reproduce_input_layout);
         final TextInputEditText issueReproduceInput = findViewById(R.id.feedback_issue_reproduce_input);
@@ -205,7 +205,7 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     }
 
-    public boolean validateExpectedResult() {
+    private boolean validateExpectedResult() {
         final TextInputLayout expectedResultInputLayout =
                 findViewById(R.id.feedback_expected_result_layout);
         final TextInputEditText expectedResultInput = findViewById(R.id.feedback_expected_result);
@@ -218,7 +218,7 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     }
 
-    public boolean validateActualResult() {
+    private boolean validateActualResult() {
         final TextInputLayout actualResultInputLayout =
                 findViewById(R.id.feedback_actual_result_layout);
         final TextInputEditText actualResultInput = findViewById(R.id.feedback_actual_result);
@@ -231,11 +231,11 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     }
 
-    public void dialogInvalid() {
+    private void dialogInvalid() {
         showDialog("Please make sure you have checked all the boxes.");
     }
 
-    public void dialogNoEmailApp() {
+    private void dialogNoEmailApp() {
         showDialog("No email application found on your device.\nPlease install a supported email app and try again.");
     }
 
@@ -251,13 +251,10 @@ public class FeedbackActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 }

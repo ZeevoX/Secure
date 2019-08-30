@@ -43,9 +43,8 @@ public class Entries {
     public static final String FILENAME = "secure.xml";
 
     private final File data;
-    private DocumentBuilder documentBuilder;
-
     private final ArrayList<Entry> entries = new ArrayList<>();
+    private DocumentBuilder documentBuilder;
 
     public Entries(Context context) throws Exception {
         data = new File(context.getFilesDir(), FILENAME);

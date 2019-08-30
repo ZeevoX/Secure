@@ -34,10 +34,34 @@ public class Crypto {
 
     /**
      * Initialise Crypto
+     *
      * @throws Exception since Entries() throws an Exception too
      */
     public Crypto(Context context) throws Exception {
         mEntries = new Entries(context);
+    }
+
+    /**
+     * This method creates a new entry that can be saved to the user's password database.
+     *
+     * @param entryName   The parameter that specifies the visible, unencrypted
+     *                    tag or title for the key (e.g. the website to which
+     *                    these credentials are related to)
+     * @param keyUsername The parameter that specifies the username of the key
+     * @param keyPassword The parameter that specifies the password of the key
+     * @param keyNotes    The parameter that specifies any notes related to the
+     *                    key (e.g. security questions)
+     * @throws Exception Throws an exception due to the fact that
+     *                   Entries.addEntrySorted(Entry entry) throws an exception too.
+     */
+    public static Entry newEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
+                                 @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
+        String notesEnc = null;
+        if (keyNotes != null) {
+            notesEnc = Encryptor.encrypt(keyNotes, masterPass.toCharArray());
+        }
+        return new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
+                Encryptor.encrypt(keyPassword, masterPass.toCharArray()), notesEnc);
     }
 
     /**
@@ -70,30 +94,8 @@ public class Crypto {
     }
 
     /**
-     * This method creates a new entry that can be saved to the user's password database.
-     *
-     * @param entryName   The parameter that specifies the visible, unencrypted
-     *                    tag or title for the key (e.g. the website to which
-     *                    these credentials are related to)
-     * @param keyUsername The parameter that specifies the username of the key
-     * @param keyPassword The parameter that specifies the password of the key
-     * @param keyNotes    The parameter that specifies any notes related to the
-     *                    key (e.g. security questions)
-     * @throws Exception Throws an exception due to the fact that
-     *                   Entries.addEntrySorted(Entry entry) throws an exception too.
-     */
-    public static Entry newEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
-                                 @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
-        String notesEnc = null;
-        if (keyNotes != null) {
-            notesEnc = Encryptor.encrypt(keyNotes, masterPass.toCharArray());
-        }
-        return new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
-                Encryptor.encrypt(keyPassword, masterPass.toCharArray()), notesEnc);
-    }
-
-    /**
      * The method allows direct access to mEntries
+     *
      * @return Returns the value of mEntries
      */
     public Entries getEntries() {
@@ -102,6 +104,7 @@ public class Crypto {
 
     /**
      * Gives a reference to the password database file
+     *
      * @return Returns the secure.xml File.
      */
     public File getFile() {

@@ -34,24 +34,6 @@ import com.zeevox.secure.R;
 
 public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
 
-    public PasswordsBottomModalSheet(@NonNull FragmentManager fragmentManager, @NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword, @Nullable String keyNotes) {
-        super();
-        this.entryName = entryName;
-        this.keyUsername = keyUsername;
-        this.keyPassword = keyPassword;
-        this.keyNotes = keyNotes;
-        show(fragmentManager, getClass().getSimpleName());
-    }
-
-    private String entryName;
-    private String keyUsername;
-    private String keyPassword;
-    private String keyNotes;
-
-    public void setKeyInfo() {
-
-    }
-
     private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
         @Override
         public void onStateChanged(@NonNull View view, int newState) {
@@ -71,7 +53,7 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
                     //dismiss();
                 }
                 case BottomSheetBehavior.STATE_DRAGGING: {
-                    Log.d("BSB", "dragging");;
+                    Log.d("BSB", "dragging");
                 }
                 case BottomSheetBehavior.STATE_HALF_EXPANDED: {
                     Log.d("BSB", "half-expanded");
@@ -84,6 +66,19 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
             Log.d("BSB", "sliding " + slideOffset);
         }
     };
+    private final String entryName;
+    private final String keyUsername;
+    private final String keyPassword;
+    private final String keyNotes;
+
+    public PasswordsBottomModalSheet(@NonNull FragmentManager fragmentManager, @NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword, @Nullable String keyNotes) {
+        super();
+        this.entryName = entryName;
+        this.keyUsername = keyUsername;
+        this.keyPassword = keyPassword;
+        this.keyNotes = keyNotes;
+        show(fragmentManager, getClass().getSimpleName());
+    }
 
     @Override
     public void setupDialog(Dialog dialog, int style) {
@@ -156,7 +151,7 @@ public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
             }
         });
 
-        if(behavior instanceof BottomSheetBehavior) {
+        if (behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(bottomSheetCallback);
         }
     }
