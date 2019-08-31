@@ -1,3 +1,4 @@
+# See bottom of this file for custom edits
 
 # Created by https://www.gitignore.io/api/eclipse,android,intellij,androidstudio
 
@@ -273,5 +274,9 @@ cmake-build-debug/
 
 # End of https://www.gitignore.io/api/eclipse,android,intellij,androidstudio
 
+# Custom additions
+
 archive/
 keystore.properties
+.idea/caches
+
