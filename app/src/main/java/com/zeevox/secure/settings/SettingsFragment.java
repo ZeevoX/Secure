@@ -20,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -87,29 +88,34 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         });
 
         Preference exportPasswordsPreference = findPreference(Flags.EXPORT_PASSWORDS);
-        exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
-            // Check application required permissions
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted; request the permission
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSIONS_REQUEST);
+        // TODO Export passwords on Android Q using the new storage access framework
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            exportPasswordsPreference.setVisible(false);
+        } else {
+            exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
+                // Check application required permissions
+                if (ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted; request the permission
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            PERMISSIONS_REQUEST);
 
-                // PERMISSIONS_REQUEST is an app-defined int constant.
-                // The callback method gets the result of the request.
+                    // PERMISSIONS_REQUEST is an app-defined int constant.
+                    // The callback method gets the result of the request.
 
-            } else {
-                // Permission has already been granted
-                if (exportPasswords()) {
-                    Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_message_success), Snackbar.LENGTH_SHORT).show();
                 } else {
-                    Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_miscellaneous), Snackbar.LENGTH_LONG).show();
+                    // Permission has already been granted
+                    if (exportPasswords()) {
+                        Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_message_success), Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_miscellaneous), Snackbar.LENGTH_LONG).show();
+                    }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
+        }
 
         Preference backupNowPreference = findPreference(Flags.BACKUP_RESTORE_NOW);
         backupNowPreference.setOnPreferenceClickListener(preference -> {
