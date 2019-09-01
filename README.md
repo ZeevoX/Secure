@@ -27,9 +27,9 @@ You can sign up to [my Telegram channel](https://t.me/ZeevoX_CI) where the lates
 
 #### For adventurers
 
-This project uses [Android Studio 3.5](https://developer.android.com/studio), where, once installed, you can use the **Import from VCS** feature. Android Studio will clone the repository and attempt to build it.
+This project uses [Android Studio 3.5](https://developer.android.com/studio), where, once installed, you can use the **Import from VCS** feature. Android Studio will clone the repository and attempt to build it. The build will fail.
 
-First, create a new JKS keystore and key in the root directory of the project. We will use this to sign your build of the app.
+To fix this, we must create a new JKS keystore and key in the root directory of the project. We will use this to sign your build of the app. This is necessary for the Google Drive backup feature to work, which verifies the APK's signature.
 
 Next, you will need to create a `keystore.properties` file in the root directory of the project and replace the placeholders with the passwords to the keystore and key you just created.
 
@@ -41,6 +41,8 @@ keyPassword <key password>
 ```
 
 Now you can follow Google's guide on [configuring a Google API Console project](https://developers.google.com/identity/sign-in/android/start-integrating#configure_a_project)
+
+Once you have integrated your `credentials.json` file, try building again, and it should build successfully. If it does not, feel free to take a look in the [issue tracker](https://github.com/ZeevoX/Secure/issues) and perhaps create a new issue.
 
 ## Acknowledgements
 
