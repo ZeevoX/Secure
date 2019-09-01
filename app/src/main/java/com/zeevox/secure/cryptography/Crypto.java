@@ -82,10 +82,8 @@ public class Crypto {
         }
         try {
             Encryptor.decrypt(mEntries.getEntryAt(ThreadLocalRandom.current().nextInt(0, mEntries.getEntries().size())).pass, masterPass.toCharArray());
-            Log.d(TAG, "Correct password entered!");
             return true;
         } catch (BadPaddingException bpe) {
-            Log.d(TAG, "Wrong password entered!");
             return false;
         } catch (Exception e) {
             e.printStackTrace();

@@ -28,7 +28,7 @@
     <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_help"
-            android:title="@string/nav_dest_help" />
+            android:title="@string/nav_dest_about" />
         <item
             android:id="@+id/nav_send_feedback"
             android:title="@string/nav_dest_send_feedback" />

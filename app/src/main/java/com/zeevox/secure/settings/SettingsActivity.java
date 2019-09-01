@@ -29,16 +29,20 @@ import com.zeevox.secure.R;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.ui.FeedbackActivity;
 
+/**
+ * An activity to host {@link SettingsFragment}
+ * Marked as deprecated because in the near future we ought to switch to using
+ * {@link androidx.fragment.app.Fragment fragments} everywhere so as to use the
+ * {@link NavigationView} for its intended purpose, otherwise currently this
+ * activity is a hacky copy-paste of the side drawer from {@link com.zeevox.secure.ui.MainActivity MainActivity}
+ */
+@Deprecated
 public class SettingsActivity extends SecureAppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Inflate layout
         setContentView(R.layout.activity_settings);
-
-//        final Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu);

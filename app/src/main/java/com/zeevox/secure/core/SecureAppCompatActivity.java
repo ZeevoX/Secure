@@ -26,6 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.zeevox.secure.R;
 
+/**
+ * This is the base class that all activities in this app extend from
+ * Here we manage elements that are common among all activities
+ */
 @SuppressLint("Registered")
 public class SecureAppCompatActivity extends AppCompatActivity {
 

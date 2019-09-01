@@ -32,6 +32,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.zeevox.secure.R;
 
+/**
+ * Show a bottom sheet with entry information, including the key, username, password and notes.
+ */
 public class PasswordsBottomModalSheet extends BottomSheetDialogFragment {
 
     private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {

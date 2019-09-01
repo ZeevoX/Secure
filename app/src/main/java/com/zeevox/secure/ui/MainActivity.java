@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -69,7 +68,7 @@ import java.util.Objects;
 
 import static com.zeevox.secure.App.masterKey;
 
-public class MainActivity extends SecureAppCompatActivity implements SearchView.OnQueryTextListener, AuthenticationDialog.Callback {
+public class MainActivity extends SecureAppCompatActivity implements AuthenticationDialog.Callback {
 
     public static final int REQUEST_EDIT_ENTRY = 8426;
     // Identify the permissions request
@@ -411,16 +410,6 @@ public class MainActivity extends SecureAppCompatActivity implements SearchView.
         } catch (NullPointerException npe) {
         }
         super.onResume();
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
     }
 
     @Override

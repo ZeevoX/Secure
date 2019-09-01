@@ -14,23 +14,18 @@
 
 package com.zeevox.secure;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 import com.zeevox.secure.backup.BackupRestoreHelper;
 import com.zeevox.secure.core.SecureAppCompatActivity;
 import com.zeevox.secure.cryptography.Crypto;
 import com.zeevox.secure.ui.MainActivity;
 import com.zeevox.secure.ui.dialog.AuthenticationDialog;
-import com.zeevox.secure.util.PermissionUtils;
 
+/**
+ * The splash screen / loading activity
+ */
 public class App extends SecureAppCompatActivity implements AuthenticationDialog.Callback {
 
     // Total number of attempts in the application
@@ -46,17 +41,8 @@ public class App extends SecureAppCompatActivity implements AuthenticationDialog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent().getBooleanExtra("permissions_request", false)) {
-            requestStoragePermission(PERMISSIONS_REQUEST);
-        }
-
         // Inflate the splash screen layout
         setContentView(R.layout.activity_splash);
-
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Flags.BACKUP_RESTORE, false)) {
-            backupRestoreHelper = new BackupRestoreHelper(this);
-            backupRestoreHelper.setup();
-        }
 
         try {
             Crypto crypto = new Crypto(this);
@@ -71,56 +57,11 @@ public class App extends SecureAppCompatActivity implements AuthenticationDialog
         }
     }
 
-    /**
-     * Requests the storage permission. If a rationale with an additional explanation should
-     * be shown to the user, displays a dialog that triggers the request.
-     */
-    private void requestStoragePermission(int requestCode) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            // Display a dialog with rationale.
-            PermissionUtils.RationaleDialog
-                    .newInstance(requestCode, false).show(
-                    getSupportFragmentManager(), "dialog");
-        } else {
-            // Storage permission has not been granted yet, request it.
-            PermissionUtils.requestPermissions(this, requestCode,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE}, false);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == BackupRestoreHelper.REQUEST_CODE_SIGN_IN) {
-            backupRestoreHelper.setup();
-        }
-    }
-
     @Override
     public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
         if (requestCode == AUTHENTICATION_REQUEST) {
             if (resultCode == AuthenticationDialog.RESULT_ACCEPT)
                 startActivity(new Intent(App.this, MainActivity.class));
-            finish();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSIONS_REQUEST) {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                // permission was granted, yay!
-                setResult(Activity.RESULT_OK, new Intent());
-            } else {
-                setResult(Activity.RESULT_CANCELED, new Intent());
-            }
             finish();
         }
     }

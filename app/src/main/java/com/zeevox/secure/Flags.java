@@ -14,6 +14,9 @@
 
 package com.zeevox.secure;
 
+/**
+ * Not flags as per the historic name, but a class of constants that help prevent typos when writing new code
+ */
 @SuppressWarnings({"PointlessBooleanExpression", "WeakerAccess"})
 public class Flags {
     public static final int MAX_ATTEMPTS = 3;

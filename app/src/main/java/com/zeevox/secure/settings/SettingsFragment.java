@@ -15,9 +15,7 @@
 package com.zeevox.secure.settings;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -35,9 +33,8 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
@@ -58,27 +55,23 @@ import java.util.Objects;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements AuthenticationDialog.Callback {
 
-    private static final int REQUEST_CODE_SIGN_IN = 2108;
     private static final int PERMISSIONS_REQUEST = 2550;
     private static final int REQUEST_AUTHENTICATION = 6600;
-    private final String TAG = getClass().getSimpleName();
-    private SwitchPreferenceCompat backupRestorePreference;
     private ListPreference securityLevelPreference;
-    private int seLevValue = 2;
-    private BackupRestoreHelper backupRestoreHelper;
     private Crypto crypto;
+    private BackupRestoreHelper backupRestoreHelper;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
+
+        if (getActivity() == null) return;
 
         try {
             crypto = new Crypto(getActivity());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        backupRestoreHelper = new BackupRestoreHelper(getActivity());
 
         securityLevelPreference = findPreference(Flags.SECURITY_LEVEL);
         List<String> seLevels = Arrays.asList(getResources().getStringArray(R.array.security_level_entries));
@@ -110,28 +103,21 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
             } else {
                 // Permission has already been granted
                 if (exportPasswords()) {
-                    Snackbar.make(Objects.requireNonNull(getView()), "Passwords successfully exported.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_message_success), Snackbar.LENGTH_SHORT).show();
                 } else {
-                    Snackbar.make(Objects.requireNonNull(getView()), "An error occurred while exporting passwords", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_miscellaneous), Snackbar.LENGTH_LONG).show();
                 }
-            }
-            return true;
-        });
-
-        backupRestorePreference = findPreference(Flags.BACKUP_RESTORE);
-        backupRestorePreference.setOnPreferenceChangeListener((preference, o) -> {
-            boolean switched = (boolean) o;
-            if (switched) {
-                backupRestoreHelper.setup();
             }
             return true;
         });
 
         Preference backupNowPreference = findPreference(Flags.BACKUP_RESTORE_NOW);
         backupNowPreference.setOnPreferenceClickListener(preference -> {
-            BackupRestoreHelper brh = new BackupRestoreHelper(getActivity());
-            brh.setup();
-            brh.backup();
+            BackupRestoreHelper.Callback brhCallback = backupSuccess -> {
+                if (backupSuccess) Snackbar.make(getView(), getString(R.string.brh_message_backup_success), BaseTransientBottomBar.LENGTH_LONG).show();
+            };
+            backupRestoreHelper = new BackupRestoreHelper(getActivity(), brhCallback);
+            backupRestoreHelper.setup();
             return true;
         });
 
@@ -140,14 +126,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         deleteDbPreference.setEnabled(crypto.getFile().exists());
         deleteDbPreference.setOnPreferenceClickListener(preference -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-            alertDialog.setTitle("Delete database?");
-            alertDialog.setMessage("This will delete ALL passwords in the database, permanently. There is no way back after this! Are you sure you want to continue?");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "DELETE", (dialog, which) -> {
+            alertDialog.setTitle(getString(R.string.dialog_clear_database_warning_title));
+            alertDialog.setMessage(getString(R.string.dialog_clear_database_warning_message));
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.action_delete), (dialog, which) -> {
                 crypto.getFile().delete();
                 preference.setEnabled(false);
                 dialog.dismiss();
             });
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "CANCEL", (dialog, which) -> dialog.dismiss());
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(android.R.string.cancel), (dialog, which) -> dialog.dismiss());
             alertDialog.show();
             return true;
         });
@@ -183,71 +169,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         return true;
     }
 
-//    /**
-//     * Starts a sign-in activity using {@link #REQUEST_CODE_SIGN_IN}.
-//     */
-//    private void requestSignIn() {
-//        Log.d(TAG, "Requesting sign-in");
-//
-//        GoogleSignInOptions signInOptions =
-//                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                        .requestEmail()
-//                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-//                        .build();
-//        GoogleSignInClient client = GoogleSignIn.getClient(getActivity(), signInOptions);
-//
-//        // The result of the sign-in Intent is handled in onActivityResult.
-//        startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
-//    }
-
-
-    /**
-     * //     * Handles the {@code result} of a completed sign-in activity initiated from {@link
-     * //     * #requestSignIn()}.
-     */
-    private void handleSignInResult(Intent result) {
-        GoogleSignIn.getSignedInAccountFromIntent(result)
-                .addOnSuccessListener(googleAccount -> {
-                    Log.d(TAG, "Signed in as " + googleAccount.getEmail());
-
-                    backupRestoreHelper.setup();
-
-//                    // Use the authenticated account to sign in to the Drive service.
-//                    GoogleAccountCredential credential =
-//                            GoogleAccountCredential.usingOAuth2(
-//                                    getActivity(), Collections.singleton(DriveScopes.DRIVE_FILE));
-//                    credential.setSelectedAccount(googleAccount.getAccount());
-//                    Drive googleDriveService =
-//                            new Drive.Builder(
-//                                    AndroidHttp.newCompatibleTransport(),
-//                                    new GsonFactory(),
-//                                    credential)
-//                                    .setApplicationName("Secure - Password Manager")
-//                                    .build();
-//
-//                    // The DriveServiceHelper encapsulates all REST API and SAF functionality.
-//                    // Its instantiation is required before handling any onClick actions.
-//                    mDriveServiceHelper = new DriveServiceHelper(googleDriveService);
-                    backupRestorePreference.setChecked(true);
-
-                })
-                .addOnFailureListener(exception -> {
-                    Log.e(TAG, "Unable to sign in.", exception);
-                    backupRestorePreference.setChecked(false);
-                });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == REQUEST_CODE_SIGN_IN) {
-            if (resultCode == Activity.RESULT_OK && resultData != null) {
-                handleSignInResult(resultData);
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, resultData);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST) {
@@ -260,8 +181,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
 
             } else {
                 // permission denied, boo!
-                Snackbar.make(Objects.requireNonNull(getView()), "Storage permission denied; cannot save.", Snackbar.LENGTH_LONG)
-                        .setAction("TRY AGAIN", view -> {
+                Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_storage_perm_denied), Snackbar.LENGTH_LONG)
+                        .setAction(getString(R.string.action_try_again), view -> {
                             // Permission is not granted; request the permission
                             ActivityCompat.requestPermissions(getActivity(),
                                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},

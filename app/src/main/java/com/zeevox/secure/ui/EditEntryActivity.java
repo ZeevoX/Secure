@@ -36,6 +36,9 @@ import com.zeevox.secure.cryptography.Entry;
 
 import java.util.Objects;
 
+/**
+ * This activity is used to create new entries or edit existing entries
+ */
 public class EditEntryActivity extends SecureAppCompatActivity {
 
     public static final String ADAPTER_POSITION = "adapterPosition";

@@ -23,6 +23,11 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.Stream;
 
+/**
+ * A basic randomised password generator
+ * To be used in a future update
+ * @version v2.0
+ */
 @RequiresApi(api = Build.VERSION_CODES.N)
 class PasswordGenerator {
 

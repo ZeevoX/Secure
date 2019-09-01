@@ -1,3 +1,17 @@
+/*
+ *  Copyright (C) 2019 Timothy "ZeevoX" Langer
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ *  except in compliance with the License. You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the
+ *  License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied. See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
+
 package com.zeevox.secure.ui.dialog;
 
 import android.app.Activity;
@@ -23,6 +37,12 @@ import com.zeevox.secure.cryptography.Crypto;
 
 import java.util.Objects;
 
+/**
+ * Shows a dialog that can be used to authenticate the user.
+ * This can be in the form of entering the master password or asking for the device lock screen / fingerprint
+ *
+ * Activities can receive the result of the authentication (accept/reject) by implementing {@link AuthenticationDialog.Callback#onAuthenticationComplete(int, int, int) onAuthenticationComplete}
+ */
 public class AuthenticationDialog implements SecureAppCompatActivity.ResultListener {
 
     private static final int RESULT_REJECT = 0;
@@ -66,16 +86,13 @@ public class AuthenticationDialog implements SecureAppCompatActivity.ResultListe
                         if (!keyguardManager.isKeyguardSecure()) {
                             Log.e(getClass().getSimpleName(), "Device keyguard is not secured by a PIN, pattern or password");
                             // Show a message that the user hasn't set up a lock screen.
-                            Toast.makeText(activity,
-                                    "Secure lock screen hasn't set up.\n"
-                                            + "Go to 'Settings -> Security -> Screenlock' to set up a lock screen",
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, R.string.auth_error_no_secure_keyguard, Toast.LENGTH_LONG).show();
                             activity.finish();
                             return;
                         }
 
                         Intent credentialsIntent;
-                        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Verification required", "To use this application, first please verify that it's you.");
+                        credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(activity.getString(R.string.auth_keyguard_title), activity.getString(R.string.auth_keyguard_message));
                         if (credentialsIntent != null) {
                             activity.startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
                         } else {
@@ -113,7 +130,7 @@ public class AuthenticationDialog implements SecureAppCompatActivity.ResultListe
                     // Wrong password, show the dialog again with an e.
                     final TextInputLayout masterKeyLayout = alertLayout.findViewById(R.id.dialog_master_password_layout);
                     masterKeyLayout.setErrorEnabled(true);
-                    masterKeyLayout.setError(activity.getString(R.string.error_wrong_master_pass));
+                    masterKeyLayout.setError(activity.getString(R.string.dialog_master_pass_error_wrong_pass));
                     masterKeyInput.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -132,7 +149,7 @@ public class AuthenticationDialog implements SecureAppCompatActivity.ResultListe
                     // If more than three wrong attempts have been made, block the user.
                     if (App.attempts[0] >= Flags.MAX_ATTEMPTS) {
                         // Show an e as a toast message
-                        Toast.makeText(activity, R.string.error_wrong_master_pass_thrice, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.dialog_master_pass_error_attempt_limit_exceeded, Toast.LENGTH_SHORT).show();
                         // Close ALL running activities of this app
                         activity.finishAffinity();
                     }
@@ -162,6 +179,12 @@ public class AuthenticationDialog implements SecureAppCompatActivity.ResultListe
     }
 
     public interface Callback {
+        /**
+         * Use this to receive feedback on whether the user successfully authenticated themselves
+         * @param resultCode        the result, one of either {@link AuthenticationDialog#RESULT_ACCEPT RESULT_ACCEPT} or {@link AuthenticationDialog#RESULT_REJECT RESULT_REJECT}
+         * @param requestCode       unique int to identify this request
+         * @param adapterPosition   optional parameter, used primarily by {@link com.zeevox.secure.recycler.CustomAdapter CustomAdapter} to know which item in the list this authentication request refers to
+         */
         void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition);
     }
 }

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
   ~ Copyright (C) 2019 Timothy "ZeevoX" Langer
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -10,12 +11,23 @@
   ~ License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   ~ KIND, either express or implied. See the License for the specific language governing
   ~ permissions and limitations under the License.
-  -->
-<resources>
+  --><resources>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_send_feedback">Send feedback</string>
+    <string name="action_store">Sort</string>
+    <string name="action_try_again">Try again</string>
 
-    <string name="app_name" translatable="false">Secure</string>
-    <string name="app_name_permanent" translatable="false">Secure</string>
+    <string name="auth_error_no_secure_keyguard"><![CDATA[Secure lock screen hasn\'t set up. Go to \'Settings -> Security -> Screen lock\' to set up a lock screen]]></string>
+    <string name="auth_keyguard_message">To use this application, first please verify that it\'s you.</string>
+    <string name="auth_keyguard_title">Verification required</string>
 
+    <string name="brh_message_backup_success">Password database successfully backed up to Google Drive</string>
+
+    <string name="dialog_clear_database_warning_message">This will delete ALL passwords in the database, permanently. There is no way back after this! Are you sure you want to continue?</string>
+    <string name="dialog_clear_database_warning_title">Delete database?</string>
+    <string name="dialog_master_pass_error_attempt_limit_exceeded">Wrong master password entered three times consecutively! Closing application!</string>
+    <string name="dialog_master_pass_error_wrong_pass">Wrong master password entered!</string>
     <string name="dialog_master_pass_title">Enter master password</string>
     <string name="dialog_new_master_pass_desc">To use the Secure app, you need to create a master password that will encrypt all other passwords.</string>
     <string name="dialog_new_master_pass_input_hint">Enter password</string>
@@ -23,16 +35,51 @@
     <string name="dialog_new_master_pass_title">Create new master password</string>
 
     <string name="error_occurred_miscellaneous">An error occurred. Please try again.</string>
-    <string name="error_wrong_master_pass">Wrong master password entered!</string>
-    <string name="error_wrong_master_pass_thrice">Wrong master password entered three times consecutively! Closing application!</string>
+
+    <string name="export_passwords_error_miscellaneous">An error occurred while exporting passwords</string>
+    <string name="export_passwords_error_storage_perm_denied">Storage permission denied; cannot export passwords.</string>
+    <string name="export_passwords_message_success">Passwords successfully exported.</string>
+
+    <string name="feedback_check_device_info">I agree that by pressing the "Send feedback" button, Secure will collect some non-identifiable device information such as device name and Android version</string>
+    <string name="feedback_check_generic_title">I have given my issue a non-generic title</string>
+    <string name="feedback_check_latest_version">I have verified that I am using the latest version of Secure</string>
+    <string name="feedback_check_no_duplicate_title">I have verified there are no duplicate active or recent bugs, questions, or requests</string>
+    <string name="feedback_error_empty">Please make sure you have not forgotten this field.</string>
+    <string name="feedback_hint_actual_result">Actual result</string>
+    <string name="feedback_hint_expected_result">Expected result</string>
+    <string name="feedback_hint_issue_title">Issue title</string>
+    <string name="feedback_hint_reproduction_steps">Reproduction steps</string>
+    <!-- DO NOT TRANSLATE THE PLACEHOLDERS! -->
+    <string name="feedback_prefill_content">
+        #### Reproduction steps\n\n
+        REPRODUCTION_STEPS\n\n
+        #### Expected Result\n\n
+        EXPECTED_RESULT\n\n
+        #### Actual Result\n\n
+        ACTUAL_RESULT\n\n
+        #### Device info\n\n
+         - Recorder build version: `secure_version_name`\n
+         - Device fingerprint: `device_fingerprint`\n\n\n\n
+    </string>
+
+    <string name="google_backup_friendly_name">Secure - Password Database.xml</string>
 
     <string name="image_desc_application_icon">Application icon</string>
+
+    <string name="import_passwords">Import passwords</string>
 
     <string name="input_hint_key_name">Key name</string>
     <string name="input_hint_master_pass">Master password</string>
     <string name="input_hint_notes">Notes</string>
     <string name="input_hint_password">Password</string>
     <string name="input_hint_username">Username</string>
+
+    <string name="nav_dest_about">About</string>
+    <string name="nav_dest_home">Home</string>
+    <string name="nav_dest_send_feedback">Send feedback</string>
+    <string name="nav_dest_settings">Settings</string>
+    <string name="nav_dest_tos">Terms &amp; Privacy Policy</string>
+    <string name="nav_header_app_version">Version %s</string>
 
     <string name="permission_storage_denied">This app requires the storage permission to access your password database. Please try again and grant access to your internal storage.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Secure\'.</string>
     <string name="permission_storage_rationale">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
@@ -48,55 +95,19 @@
         <item>1</item>
     </string-array>
 
-    <string name="title_activity_new_entry">Add a new entry</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="nav_header_app_version">Version %s</string>
-
-    <string name="nav_dest_home">Home</string>
-    <string name="nav_dest_settings">Settings</string>
-    <string name="nav_dest_help">About</string>
-    <string name="nav_dest_send_feedback">Send feedback</string>
-    <string name="nav_dest_tos">Terms &amp; Privacy Policy</string>
-
-    <string name="action_send_feedback">Send feedback</string>
-    <string name="feedback_hint_issue_title">Issue title</string>
-    <string name="feedback_hint_reproduction_steps">Reproduction steps</string>
-    <string name="feedback_hint_expected_result">Expected result</string>
-    <string name="feedback_hint_actual_result">Actual result</string>
-    <string name="feedback_error_empty">Please make sure you have not forgotten this field.</string>
-    <!-- DO NOT TRANSLATE THE PLACEHOLDERS! -->
-    <string name="feedback_prefill_content">
-        #### Reproduction steps\n\n
-        REPRODUCTION_STEPS\n\n
-        #### Expected Result\n\n
-        EXPECTED_RESULT\n\n
-        #### Actual Result\n\n
-        ACTUAL_RESULT\n\n
-        #### Device info\n\n
-         - Recorder build version: `secure_version_name`\n
-         - Device fingerprint: `device_fingerprint`\n\n\n\n
-    </string>
-    <string name="feedback_check_no_duplicate_title">I have verified there are no duplicate active or recent bugs, questions, or requests</string>
-    <string name="feedback_check_latest_version">I have verified that I am using the latest version of Secure</string>
-    <string name="feedback_check_generic_title">I have given my issue a non-generic title</string>
-    <string name="feedback_check_device_info">I agree that by pressing the "Send feedback" button, Secure will collect some non-identifiable device information such as device name and Android version</string>
-
     <string-array name="security_level_entries">
         <item>none</item>
         <item>fingerprint</item>
         <item>password</item>
     </string-array>
-
     <string-array name="security_level_titles">
         <item>None</item>
         <item>Ask for fingerprint every time (recommended)</item>
         <item>Ask for master password every time</item>
     </string-array>
 
-    <string name="google_backup_friendly_name">Secure - Password Database</string>
-    <string name="import_passwords">Import passwords</string>
-    <string name="action_edit">Edit</string>
-    <string name="action_delete">Delete</string>
-    <string name="action_store">Sort</string>
+    <string name="title_activity_new_entry">Add a new entry</string>
+    <string name="title_activity_settings">Settings</string>
 
+    <string name="app_name" translatable="false">Secure</string>
 </resources>
