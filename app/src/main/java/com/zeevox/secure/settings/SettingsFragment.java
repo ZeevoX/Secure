@@ -16,6 +16,7 @@ package com.zeevox.secure.settings;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -37,6 +38,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.zeevox.secure.App;
 import com.zeevox.secure.Flags;
 import com.zeevox.secure.R;
 import com.zeevox.secure.backup.BackupRestoreHelper;
@@ -138,6 +140,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
                 crypto.getFile().delete();
                 preference.setEnabled(false);
                 dialog.dismiss();
+
+                // Once the database has been cleared we take the user back to the setup screen
+                startActivity(new Intent(getActivity(), App.class));
+                getActivity().finish();
             });
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(android.R.string.cancel), (dialog, which) -> dialog.dismiss());
             alertDialog.show();
