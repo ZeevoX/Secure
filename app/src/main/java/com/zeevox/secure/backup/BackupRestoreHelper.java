@@ -108,7 +108,7 @@ public class BackupRestoreHelper implements SecureAppCompatActivity.ResultListen
     }
 
     /**
-     * Manages backing up the password database to Google Drivel
+     * Manages backing up the password database to Google Drive
      */
     private void backup() {
         if (mDriveServiceHelper == null) {
