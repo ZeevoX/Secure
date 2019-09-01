@@ -1,0 +1,70 @@
+<!--
+  ~ Copyright (C) 2019 Timothy "ZeevoX" Langer
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+  ~ except in compliance with the License. You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the
+  ~ License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the specific language governing
+  ~ permissions and limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="General">
+
+        <ListPreference
+            android:defaultValue="fingerprint"
+            android:entries="@array/security_level_titles"
+            android:entryValues="@array/security_level_entries"
+            android:key="security_level"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="%s"
+            android:title="Security level" />
+
+        <Preference android:enabled="false" android:summary="NOTE: The application will ask for the master password each time you open the application afresh." />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:enabled="false"
+        android:title="Encryption">
+
+        <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to dismiss it. -->
+        <ListPreference
+            android:defaultValue="0"
+            android:enabled="false"
+            android:entries="@array/pref_set_encryption_algorithm_titles"
+            android:entryValues="@array/pref_set_encryption_algorithm_values"
+            android:key="encryption_algorithm"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="%s"
+            android:title="@string/pref_set_encryption_algorithm_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Backup and restore">
+        <Preference
+            android:title="Backup passwords now"
+            android:summary="Manually trigger a backup of your passwords"
+            android:key="google_drive_backup_now" />
+        <Preference android:enabled="false" android:summary="Google Drive™ is a trademark of Google Inc." />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Passwords">
+        <Preference android:enabled="false" android:summary="Some of these settings can be dangerous and cause data loss. Proceed with caution." />
+        <Preference
+            android:title="Export passwords"
+            android:summary="Save your passwords as an XML file"
+            android:key="export_passwords" />
+        <Preference
+            android:key="delete_database"
+            android:summary="Delete ALL saved passwords in the database."
+            android:title="Clear database" />
+    </PreferenceCategory>
+</PreferenceScreen>
