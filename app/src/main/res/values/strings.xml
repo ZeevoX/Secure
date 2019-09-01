@@ -110,4 +110,6 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="app_name" translatable="false">Secure</string>
+    <string name="pass_import_message_success">Passwords successfully imported</string>
+    <string name="pass_import_message_error">Password import unsuccessful, check you have selected the right file.</string>
 </resources>

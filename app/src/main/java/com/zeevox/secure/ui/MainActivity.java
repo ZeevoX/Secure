@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
@@ -286,13 +287,9 @@ public class MainActivity extends SecureAppCompatActivity implements Authenticat
 
             // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
             // browser.
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 
-            // Filter to only show results that can be "opened", such as a
-            // file (as opposed to a list of contacts or timezones)
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-            intent.setType("text/xml");
+            intent.setType("*/*");
 
             startActivityForResult(intent, READ_REQUEST_CODE);
             dialog.dismiss();
@@ -337,10 +334,12 @@ public class MainActivity extends SecureAppCompatActivity implements Authenticat
                         outputStream.close();
                         inputStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.w(getClass().getSimpleName(), "Password import unsuccessful", e);
+                        Toast.makeText(this, R.string.pass_import_message_error, Toast.LENGTH_LONG);
                     }
                     Log.i(getClass().getSimpleName(), "Importing passwords successful!");
-                    Snackbar.make(layout, "Passwords successfully imported", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(layout, getString(R.string.pass_import_message_success), Snackbar.LENGTH_SHORT).show();
+                    setupRecycler();
                     break;
                 case REQUEST_NEW_ENTRY:
                     int adapterPosition = resultData.getIntExtra(EditEntryActivity.ADAPTER_POSITION, -1);
