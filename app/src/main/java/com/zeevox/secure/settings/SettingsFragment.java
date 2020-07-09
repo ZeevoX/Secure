@@ -15,6 +15,7 @@
 package com.zeevox.secure.settings;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 
@@ -48,6 +50,7 @@ import com.zeevox.secure.cryptography.Entries;
 import com.zeevox.secure.ui.dialog.AuthenticationDialog;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +63,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
 
     private static final int PERMISSIONS_REQUEST = 2550;
     private static final int REQUEST_AUTHENTICATION = 6600;
+    private static final int SAVE_DATABASE_REQUEST = 734;
     private ListPreference securityLevelPreference;
     private Crypto crypto;
     private BackupRestoreHelper backupRestoreHelper;
@@ -90,9 +94,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         });
 
         Preference exportPasswordsPreference = findPreference(Flags.EXPORT_PASSWORDS);
-        // TODO Export passwords on Android Q using the new storage access framework
+        // Export passwords on Android Q using the new storage access framework
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            exportPasswordsPreference.setVisible(false);
+            exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
+                Intent shareIntent = new Intent()
+                        .setAction(Intent.ACTION_CREATE_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("text/xml")
+                        .putExtra(Intent.EXTRA_TITLE, Entries.FILENAME);
+                startActivityForResult(shareIntent, SAVE_DATABASE_REQUEST);
+                return true;
+            });
         } else {
             exportPasswordsPreference.setOnPreferenceClickListener(preference -> {
                 // Check application required permissions
@@ -110,9 +122,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
                 } else {
                     // Permission has already been granted
                     if (exportPasswords()) {
-                        Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_message_success), Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(requireView(), getString(R.string.export_passwords_message_success), Snackbar.LENGTH_SHORT).show();
                     } else {
-                        Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_miscellaneous), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(requireView(), getString(R.string.export_passwords_error_miscellaneous), Snackbar.LENGTH_LONG).show();
                     }
                 }
                 return true;
@@ -122,7 +134,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
         Preference backupNowPreference = findPreference(Flags.BACKUP_RESTORE_NOW);
         backupNowPreference.setOnPreferenceClickListener(preference -> {
             BackupRestoreHelper.Callback brhCallback = backupSuccess -> {
-                if (backupSuccess) Snackbar.make(getView(), getString(R.string.brh_message_backup_success), BaseTransientBottomBar.LENGTH_LONG).show();
+                if (backupSuccess)
+                    Snackbar.make(requireView(), getString(R.string.brh_message_backup_success), BaseTransientBottomBar.LENGTH_LONG).show();
             };
             backupRestoreHelper = new BackupRestoreHelper(getActivity(), brhCallback);
             backupRestoreHelper.setup();
@@ -193,7 +206,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
 
             } else {
                 // permission denied, boo!
-                Snackbar.make(Objects.requireNonNull(getView()), getString(R.string.export_passwords_error_storage_perm_denied), Snackbar.LENGTH_LONG)
+                Snackbar.make(requireView(), getString(R.string.export_passwords_error_storage_perm_denied), Snackbar.LENGTH_LONG)
                         .setAction(getString(R.string.action_try_again), view -> {
                             // Permission is not granted; request the permission
                             ActivityCompat.requestPermissions(getActivity(),
@@ -208,6 +221,56 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Authen
     public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
         if (requestCode == REQUEST_AUTHENTICATION && resultCode == AuthenticationDialog.RESULT_ACCEPT) {
             securityLevelPreference.setValueIndex(adapterPosition);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case SAVE_DATABASE_REQUEST:
+                if (resultCode != Activity.RESULT_OK) {
+                    Snackbar.make(requireView(), "The file picker had something unexpected happen. Please try again.", Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (data != null) {
+                    Uri uri = data.getData();
+                    if (uri != null) {
+                        InputStream internalDatabase = null;
+                        OutputStream externalSave = null;
+                        try {
+                            internalDatabase = new FileInputStream(crypto.getFile());
+
+                            ParcelFileDescriptor parcelFileDescriptor = requireContext().getContentResolver().openFileDescriptor(uri, "w");
+                            externalSave = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+
+                            // Copy the bits from instream to outstream
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = internalDatabase.read(buf)) > 0) {
+                                externalSave.write(buf, 0, len);
+                            }
+
+                            Snackbar.make(requireView(), "Successfully exported passwords", Snackbar.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            Snackbar.make(requireView(), "Exporting passwords unsuccessful.", Snackbar.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (internalDatabase != null) internalDatabase.close();
+                                if (externalSave != null) externalSave.close();
+                            } catch (IOException e) {
+                                Snackbar.make(requireView(), "Something went really wrong.", Snackbar.LENGTH_LONG).show();
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        Snackbar.make(requireView(), "Invalid file location picked, please try a different one", Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Snackbar.make(requireView(), "Something went wrong, please try again", Snackbar.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 }
