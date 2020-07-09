@@ -27,7 +27,7 @@ You can sign up to [my Telegram channel](https://t.me/ZeevoX_CI) where the lates
 
 #### For adventurers
 
-This project uses [Android Studio 3.5](https://developer.android.com/studio), where, once installed, you can use the **Import from VCS** feature. Android Studio will clone the repository and attempt to build it. The build will fail.
+This project uses [Android Studio 4.0](https://developer.android.com/studio), where, once installed, you can use the **Import from VCS** feature. Android Studio will clone the repository and attempt to build it. The build will fail.
 
 To fix this, we must create a new JKS keystore and key in the root directory of the project. We will use this to sign your build of the app. This is necessary for the Google Drive backup feature to work, which verifies the APK's signature.
 
