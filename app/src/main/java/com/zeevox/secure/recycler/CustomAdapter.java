@@ -236,26 +236,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         @Override
         public void onAuthenticationComplete(int resultCode, int requestCode, int adapterPosition) {
             try {
-                Entry entry = crypto.getEntries().getEntryAt(adapterPosition);
-
+                Entry entryLocked = crypto.getEntries().getEntryAt(adapterPosition);
                 if (resultCode == AuthenticationDialog.RESULT_ACCEPT) {
+                    Entry.Decrypted entry = entryLocked.unlock(App.masterKey.toCharArray());
                     switch (requestCode) {
                         case MASTER_DIALOG_KEY_INFO:
-                            String keyNotes = null;
-                            if (entry.notes != null) {
-                                keyNotes = Encryptor.decrypt(entry.notes, App.masterKey.toCharArray());
-                            }
-                            new PasswordsBottomModalSheet(activity.getSupportFragmentManager(), entry.key, Encryptor.decrypt(entry.name, App.masterKey.toCharArray()),
-                                    Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()), keyNotes);
+                            new PasswordsBottomModalSheet(activity.getSupportFragmentManager(),
+                                    entry.key, entry.name, entry.pass, entry.notes);
                             break;
                         case MASTER_DIALOG_EDIT_ENTRY:
                             Intent intent = new Intent(activity, EditEntryActivity.class);
                             intent.putExtra("entryKey", entry.key);
-                            intent.putExtra("entryName", Encryptor.decrypt(entry.name, App.masterKey.toCharArray()));
-                            intent.putExtra("entryPass", Encryptor.decrypt(entry.pass, App.masterKey.toCharArray()));
-                            if (entry.notes != null) {
-                                intent.putExtra("entryNotes", Encryptor.decrypt(entry.notes, App.masterKey.toCharArray()));
-                            }
+                            intent.putExtra("entryName", entry.name);
+                            intent.putExtra("entryPass", entry.pass);
+                            intent.putExtra("entryNotes", entry.notes);
                             intent.putExtra("adapterPosition", adapterPosition);
                             activity.startActivityForResult(intent, MainActivity.REQUEST_EDIT_ENTRY);
                             break;

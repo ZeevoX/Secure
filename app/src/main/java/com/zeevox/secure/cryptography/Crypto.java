@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.BadPaddingException;
@@ -56,12 +57,22 @@ public class Crypto {
      */
     public static Entry newEntry(@NonNull String entryName, @NonNull String keyUsername, @NonNull String keyPassword,
                                  @Nullable String keyNotes, @NonNull String masterPass) throws Exception {
+        byte[] salt = new byte[8];
+        new SecureRandom().nextBytes(salt);
+
         String notesEnc = null;
         if (keyNotes != null) {
-            notesEnc = Encryptor.encrypt(keyNotes, masterPass.toCharArray());
+            notesEnc = Encryptor.encrypt(
+                    keyNotes,
+                    masterPass.toCharArray(),
+                    salt);
         }
-        return new Entry(entryName, Encryptor.encrypt(keyUsername, masterPass.toCharArray()),
-                Encryptor.encrypt(keyPassword, masterPass.toCharArray()), notesEnc);
+        return new Entry(
+                entryName,
+                Encryptor.encrypt(keyUsername, masterPass.toCharArray(), salt),
+                Encryptor.encrypt(keyPassword, masterPass.toCharArray(), salt),
+                notesEnc,
+                salt);
     }
 
     /**
@@ -80,15 +91,9 @@ public class Crypto {
             Log.w(TAG, "New user, allowing access.");
             return true;
         }
-        try {
-            Encryptor.decrypt(mEntries.getEntryAt(ThreadLocalRandom.current().nextInt(0, mEntries.getEntries().size())).pass, masterPass.toCharArray());
-            return true;
-        } catch (BadPaddingException bpe) {
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        Entry randomEntry = mEntries.getEntryAt(ThreadLocalRandom.current().nextInt(0, mEntries.getEntries().size()));
+        Entry.Decrypted result = randomEntry.unlock(masterPass.toCharArray());
+        return result != null; // if the master password is incorrect Entry.unlock returns null
     }
 
     /**
